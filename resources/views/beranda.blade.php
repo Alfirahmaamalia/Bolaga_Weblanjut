@@ -15,7 +15,17 @@
 				<a href="{{ route('beranda') }}" class="text-[#1b1b18] hover:underline underline-offset-4">Beranda</a>
 				<a href="#" class="text-[#706f6c] hover:text-[#1b1b18]">Kategori</a>
 				<a href="#" class="text-[#706f6c] hover:text-[#1b1b18]">Riwayat</a>
-				<a href="{{ route('login') }}" class="px-4 py-2 border rounded-full hover:bg-black hover:text-white transition">Masuk</a>
+				@auth
+					<div class="flex items-center gap-4">
+						<span>Halo, {{ Auth::user()->nama }}</span>
+						<form action="{{ route('logout') }}" method="POST">
+							@csrf
+							<button type="submit" class="px-4 py-2 border rounded-full hover:bg-black hover:text-white transition">Logout</button>
+						</form>
+					</div>
+				@else
+					<a href="{{ route('login') }}" class="px-4 py-2 border rounded-full hover:bg-black hover:text-white transition">Masuk</a>
+				@endauth
 			</nav>
 		</div>
 	</header>

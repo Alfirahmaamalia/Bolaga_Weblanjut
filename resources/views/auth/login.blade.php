@@ -3,13 +3,18 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Masuk - Baloga</title>
+    <title>Masuk - Bolaga</title>
+    <style>
+        :root {
+            --bg-image: url('{{ asset('images/lapangan.jpg') }}');
+        }
+    </style>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
 <body class="bg-white min-h-screen">
     <div class="flex min-h-screen">
         <!-- Left Panel - Image -->
-        <div class="hidden lg:flex lg:w-1/2 bg-cover bg-center relative overflow-hidden" style="background-image: url('{{ asset('images/lapangan.jpg') }}');">
+        <div class="hidden lg:flex lg:w-1/2 bg-cover bg-center relative overflow-hidden" style="background-image: var(--bg-image);">
             <div class="absolute inset-0 bg-gradient-to-br from-green-500/20 to-blue-500/20"></div>
         </div>
 
@@ -17,7 +22,7 @@
         <div class="w-full lg:w-1/2 flex flex-col">
             <!-- Header -->
             <header class="flex justify-between items-center p-6">
-                <h1 class="text-2xl font-bold text-gray-900">Baloga</h1>
+                <h1 class="text-2xl font-bold text-gray-900">Bolaga</h1>
                 <div class="flex gap-4">
                     <a href="{{ route('register') }}" class="text-gray-700 hover:text-gray-900">Daftar</a>
                     <a href="{{ route('login') }}" class="bg-green-600 text-white px-5 py-2 rounded-md hover:bg-green-700 transition">Masuk</a>

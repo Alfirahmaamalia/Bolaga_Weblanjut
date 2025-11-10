@@ -4,13 +4,13 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 
 Route::get('/', function () {
-    return view('welcome');
+    return redirect()->route('login');
 });
 
 // Beranda / Pencarian Lapangan
 Route::get('/beranda', function () {
     return view('beranda');
-})->name('beranda');
+});
 
 // Authentication Routes
 Route::middleware('guest')->group(function () {
@@ -22,4 +22,13 @@ Route::middleware('guest')->group(function () {
 
 Route::middleware('auth')->group(function () {
     Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
+
+    // Dashboard Routes
+    Route::get('/penyedia/dashboard', function () {
+        return view('penyedia.dashboard');
+    })->name('penyedia.dashboard');
+
+    Route::get('/penyewa/dashboard', function () {
+        return view('penyewa.dashboard');
+    })->name('penyewa.dashboard');
 });

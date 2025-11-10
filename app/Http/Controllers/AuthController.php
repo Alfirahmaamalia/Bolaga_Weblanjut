@@ -42,7 +42,7 @@ class AuthController extends Controller
         ]);
 
         $user = User::create([
-            'name' => explode('@', $request->email)[0], // Default name from email
+            'nama' => explode('@', $request->email)[0], // Default name from email
             'email' => $request->email,
             'password' => Hash::make($request->password),
             'role' => $request->role,
