@@ -23,8 +23,8 @@
             <!-- Header -->
             <header class="flex justify-between items-center p-6">
                 <h1 class="text-2xl font-bold text-gray-900">Bolaga</h1>
-                <div class="flex gap-4">
-                    <a href="{{ route('register') }}" class="text-gray-700 hover:text-gray-900">Daftar</a>
+                <div class="flex items-center gap-4">
+                    <a href="{{ route('register') }}" class="text-gray-700 hover:text-gray-900 px-5 py-2 rounded-md transition">Daftar</a>
                     <a href="{{ route('login') }}" class="bg-green-600 text-white px-5 py-2 rounded-md hover:bg-green-700 transition">Masuk</a>
                 </div>
             </header>
