@@ -12,7 +12,7 @@
 		<div class="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between">
 			<a href="/" class="text-xl font-semibold tracking-tight">Bolaga</a>
 			<nav class="hidden md:flex items-center gap-6 text-sm">
-				<a href="{{ route('beranda') }}" class="text-[#1b1b18] hover:underline underline-offset-4">Beranda</a>
+				<a href="{{ route('penyewa.dashboard') }}" class="text-[#1b1b18] hover:underline underline-offset-4">Beranda</a>
 				<a href="#" class="text-[#706f6c] hover:text-[#1b1b18]">Kategori</a>
 				<a href="#" class="text-[#706f6c] hover:text-[#1b1b18]">Riwayat</a>
 				@auth
