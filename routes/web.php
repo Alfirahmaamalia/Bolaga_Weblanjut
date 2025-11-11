@@ -3,9 +3,22 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 
+// Route::get('/', function () {
+//     return redirect()->route('login');
+// });
+
 Route::get('/', function () {
+    if (auth()->check()) {
+        // Arahkan ke dashboard sesuai role user
+        return auth()->user()->role === 'penyedia'
+            ? redirect()->route('penyedia.dashboard')
+            : redirect()->route('penyewa.dashboard');
+    }
+
+    // Kalau belum login, arahkan ke halaman login
     return redirect()->route('login');
 });
+
 
 // Beranda / Pencarian Lapangan
 Route::get('/beranda', function () {
