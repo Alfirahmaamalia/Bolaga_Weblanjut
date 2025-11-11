@@ -20,11 +20,6 @@ Route::get('/', function () {
 });
 
 
-// Beranda / Pencarian Lapangan
-Route::get('/beranda', function () {
-    return view('beranda');
-});
-
 // Authentication Routes
 Route::middleware('guest')->group(function () {
     Route::get('/register', [AuthController::class, 'showRegisterForm'])->name('register');
