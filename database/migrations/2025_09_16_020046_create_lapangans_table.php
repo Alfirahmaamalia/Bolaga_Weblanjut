@@ -17,8 +17,10 @@ return new class extends Migration
             $table->string('nama_lapangan');
             $table->string('jenis_olahraga');
             $table->integer('harga_perjam');
+            $table->string('lokasi');
             $table->string('deskripsi');
-            $table->string('foto');
+            $table->string('foto')->nullable()->change();
+            $table->boolean('aktif')->default(true)->change();
             $table->timestamps();
         });
     }

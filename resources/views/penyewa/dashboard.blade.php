@@ -70,7 +70,7 @@
 						<option>>= Rp250.000</option>
 					</select>
 				</div>
-				<div class="flex gap-2">
+				<div class="flex gap-2 self-end">
 					<div class="relative flex-1">
 						<input type="text" placeholder="Cari lapangan..." class="w-full border border-[#e3e3e0] rounded-lg pl-9 pr-3 py-2 focus:ring-2 focus:ring-black/10 outline-none" />
 						<svg class="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-[#706f6c]" viewBox="0 0 24 24" fill="currentColor"><path d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0016 9.5 6.5 6.5 0 109.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>

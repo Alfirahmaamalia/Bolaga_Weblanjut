@@ -2,6 +2,7 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\LapanganController;
 
 // Route::get('/', function () {
 //     return redirect()->route('login');
@@ -44,4 +45,9 @@ Route::middleware('auth')->group(function () {
     Route::get('/penyewa/dashboard', function () {
         return view('penyewa.dashboard');
     })->name('penyewa.dashboard');
+
+    Route::get('/penyedia/kelola-lapangan', [LapanganController::class, 'kelolalapangan'])->name('penyedia.kelolalapangan');
+    Route::post('/penyedia/lapangan', [LapanganController::class, 'store'])->name('penyedia.lapangan.store');
+    Route::put('/penyedia/lapangan/{lapangan}', [LapanganController::class, 'update'])->name('penyedia.lapangan.update');
+    Route::delete('/penyedia/lapangan/{lapangan}', [LapanganController::class, 'destroy'])->name('penyedia.lapangan.destroy');
 });

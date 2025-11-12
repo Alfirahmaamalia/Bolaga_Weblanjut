@@ -34,6 +34,13 @@
                 <div class="w-full max-w-md">
                     <h2 class="text-3xl font-bold text-gray-900 mb-8">Hai! Bejumpa Kembali</h2>
 
+                    <!-- Success Message -->
+                    @if(session('success'))
+                        <div class="mb-4 p-3 bg-green-100 border border-green-400 text-green-700 rounded-md text-sm">
+                            {{ session('success') }}
+                        </div>
+                    @endif
+
                     <!-- Error Messages -->
                     @if($errors->any())
                         <div class="mb-4">

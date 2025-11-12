@@ -59,29 +59,26 @@
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-2">Tipe Akun</label>
                             <div class="grid grid-cols-2 gap-4">
-                                <label class="relative flex items-center p-4 border-2 rounded-lg cursor-pointer hover:border-green-500 transition {{ old('role') == 'penyewa' ? 'border-green-500 bg-green-50' : 'border-gray-300' }}">
-                                    <input type="radio" name="role" value="penyewa" class="sr-only" {{ old('role') == 'penyewa' ? 'checked' : '' }} required>
+                                <label class="role-option relative flex items-center p-4 border-2 rounded-lg cursor-pointer hover:border-green-500 transition {{ old('role') == 'penyewa' ? 'border-green-500 bg-green-50' : 'border-gray-300' }}">
+                                    <input type="radio" name="role" value="penyewa" class="sr-only role-input" {{ old('role') == 'penyewa' ? 'checked' : '' }} required>
                                     <div class="flex-1">
                                         <div class="font-medium text-gray-900">Penyewa</div>
                                         <div class="text-sm text-gray-500">Sewa lapangan</div>
                                     </div>
-                                    @if(old('role') == 'penyewa')
-                                        <svg class="w-5 h-5 text-green-600" fill="currentColor" viewBox="0 0 20 20">
-                                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
-                                        </svg>
-                                    @endif
+                                    <svg class="role-check-icon w-5 h-5 text-green-600 {{ old('role') == 'penyewa' ? '' : 'hidden' }}" fill="currentColor" viewBox="0 0 20 20">
+                                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                                    </svg>
                                 </label>
-                                <label class="relative flex items-center p-4 border-2 rounded-lg cursor-pointer hover:border-green-500 transition {{ old('role') == 'penyedia' ? 'border-green-500 bg-green-50' : 'border-gray-300' }}">
-                                    <input type="radio" name="role" value="penyedia" class="sr-only" {{ old('role') == 'penyedia' ? 'checked' : '' }} required>
+
+                                <label class="role-option relative flex items-center p-4 border-2 rounded-lg cursor-pointer hover:border-green-500 transition {{ old('role') == 'penyedia' ? 'border-green-500 bg-green-50' : 'border-gray-300' }}">
+                                    <input type="radio" name="role" value="penyedia" class="sr-only role-input" {{ old('role') == 'penyedia' ? 'checked' : '' }} required>
                                     <div class="flex-1">
                                         <div class="font-medium text-gray-900">Penyedia</div>
                                         <div class="text-sm text-gray-500">Sewakan lapangan</div>
                                     </div>
-                                    @if(old('role') == 'penyedia')
-                                        <svg class="w-5 h-5 text-green-600" fill="currentColor" viewBox="0 0 20 20">
-                                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
-                                        </svg>
-                                    @endif
+                                    <svg class="role-check-icon w-5 h-5 text-green-600 {{ old('role') == 'penyedia' ? '' : 'hidden' }}" fill="currentColor" viewBox="0 0 20 20">
+                                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                                    </svg>
                                 </label>
                             </div>
                         </div>
@@ -196,6 +193,34 @@
                 `;
             }
         }
+
+        // New: make role option visually update on click
+        document.addEventListener('DOMContentLoaded', function () {
+            const roleInputs = document.querySelectorAll('input[name="role"].role-input');
+
+            function updateRoleUI() {
+                document.querySelectorAll('.role-option').forEach(label => {
+                    const input = label.querySelector('input[name="role"]');
+                    const icon = label.querySelector('.role-check-icon');
+                    if (input && input.checked) {
+                        label.classList.add('border-green-500','bg-green-50');
+                        label.classList.remove('border-gray-300');
+                        if (icon) icon.classList.remove('hidden');
+                    } else {
+                        label.classList.remove('border-green-500','bg-green-50');
+                        label.classList.add('border-gray-300');
+                        if (icon) icon.classList.add('hidden');
+                    }
+                });
+            }
+
+            roleInputs.forEach(input => {
+                input.addEventListener('change', updateRoleUI);
+            });
+
+            // initialize on load (handles old() server state)
+            updateRoleUI();
+        });
     </script>
 </body>
 </html>
