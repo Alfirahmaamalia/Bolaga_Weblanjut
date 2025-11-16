@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\Auth;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\LapanganController;
 
@@ -9,9 +10,8 @@ use App\Http\Controllers\LapanganController;
 // });
 
 Route::get('/', function () {
-    if (auth()->check()) {
-        // Arahkan ke dashboard sesuai role user
-        return auth()->user()->role === 'penyedia'
+    if (Auth::check()) {
+        return Auth::user()->role === 'penyedia'
             ? redirect()->route('penyedia.dashboard')
             : redirect()->route('penyewa.dashboard');
     }
@@ -37,14 +37,22 @@ Route::middleware('guest')->group(function () {
 Route::middleware('auth')->group(function () {
     Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
+    Route::get('/penyewa/booking', function () {
+        return "Riwayat booking (belum dibuat)";
+    })->name('penyewa.booking');
+
+    Route::get('/penyewa/lapangan/{id}', [LapanganController::class, 'detail'])
+    ->name('penyewa.lapangan.detail');
+
+
+
     // Dashboard Routes
     Route::get('/penyedia/dashboard', function () {
         return view('penyedia.dashboard');
     })->name('penyedia.dashboard');
 
-    Route::get('/penyewa/dashboard', function () {
-        return view('penyewa.dashboard');
-    })->name('penyewa.dashboard');
+    Route::get('/penyewa/dashboard', [LapanganController::class, 'dashboard'])
+    ->name('penyewa.dashboard');
 
     Route::get('/penyedia/kelola-lapangan', [LapanganController::class, 'kelolalapangan'])->name('penyedia.kelolalapangan');
     Route::post('/penyedia/lapangan', [LapanganController::class, 'store'])->name('penyedia.lapangan.store');
