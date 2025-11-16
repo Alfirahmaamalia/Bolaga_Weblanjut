@@ -101,6 +101,7 @@
 					'nama' => 'Arena Futsal Nusantara',
 					'harga' => 150000,
 					'lokasi' => 'Jakarta Selatan',
+					'fasilitas' => ['AC', 'Parkir', 'Toilet', 'Kantin'],
 					'gambar' => $img('futsal.jpg', 'https://images.unsplash.com/photo-1546519638-68e109498ffc?w=1200&q=80&auto=format&fit=crop')
 				],
 				[
@@ -108,6 +109,7 @@
 					'nama' => 'Satria Nugraha Badminton',
 					'harga' => 250000,
 					'lokasi' => 'Tanjung Karang Pusat',
+					'fasilitas' => ['AC', 'Raket Pinjaman', 'Toilet', 'Kantin'],
 					'gambar' => $img('badminton.jpg', asset('images/lapangan.jpg'))
 				],
 				[
@@ -115,6 +117,7 @@
 					'nama' => 'Satria Nugraha Basket',
 					'harga' => 250000,
 					'lokasi' => 'Tanjung Karang Pusat',
+					'fasilitas' => ['AC', 'Parkir', 'Toilet', 'Kantin'],
 					'gambar' => $img('basket.jpg', 'https://images.unsplash.com/photo-1531312267124-2f7f7486f7b0?w=1200&q=80&auto=format&fit=crop')
 				],
 				[
@@ -122,6 +125,7 @@
 					'nama' => 'Samudra Volley Court',
 					'harga' => 200000,
 					'lokasi' => 'Bandung',
+					'fasilitas' => ['Parkir', 'Toilet', 'Kantin'],
 					'gambar' => $img('voli.jpg', 'https://images.unsplash.com/photo-1540747913346-19e32dc3e97e?w=1200&q=80&auto=format&fit=crop')
 				],
 				[
@@ -129,6 +133,7 @@
 					'nama' => 'Green Park Tennis',
 					'harga' => 300000,
 					'lokasi' => 'Surabaya',
+					'fasilitas' => ['AC', 'Parkir', 'Toilet', 'Kantin'],
 					'gambar' => $img('tenis.jpg', 'https://images.unsplash.com/photo-1605649487212-47bdab064df3?w=1200&q=80&auto=format&fit=crop')
 				],
 			];
@@ -155,6 +160,19 @@
 							<svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5S10.62 6.5 12 6.5s2.5 1.12 2.5 2.5S13.38 11.5 12 11.5z"/></svg>
 							<span>{{ $item['lokasi'] }}</span>
 						</div>
+						@php
+							$fasilitas = is_array($item) ? ($item['fasilitas'] ?? null) : ($item->fasilitas ?? null);
+						@endphp
+						@if($fasilitas && !empty($fasilitas))
+							<div class="mt-2">
+								<p class="text-xs text-[#706f6c] mb-1.5">Fasilitas:</p>
+								<div class="flex flex-wrap gap-1.5">
+									@foreach($fasilitas as $fas)
+										<span class="px-2 py-0.5 rounded-full bg-[#ECFDF5] text-[#047857] border border-[#A7F3D0] text-xs">{{ $fas }}</span>
+									@endforeach
+								</div>
+							</div>
+						@endif
 						<div class="mt-3 flex items-center justify-between">
 							<div class="text-sm"><span class="font-semibold">Rp{{ number_format($item['harga'],0,',','.') }}</span><span class="text-xs text-[#706f6c]">/jam</span></div>
 							<a href="#" class="px-4 py-2 text-white bg-[#16a34a] rounded-full text-xs hover:bg-[#128a3e]">Booking</a>
