@@ -18,11 +18,13 @@ class Lapangan extends Model
         'harga_perjam',
         'lokasi',
         'deskripsi',
+        'fasilitas',
         'foto',
         'aktif',
     ];
 
     protected $casts = [
         'aktif' => 'boolean',
+        'fasilitas' => 'array',
     ];
 }
