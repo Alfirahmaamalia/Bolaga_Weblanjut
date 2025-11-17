@@ -4,6 +4,7 @@ use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\LapanganController;
+use App\Http\Controllers\SocialAuthController;
 
 Route::get('/', function () {
     if (Auth::check()) {
@@ -74,3 +75,7 @@ Route::middleware('auth')->group(function () {
     Route::delete('/penyedia/lapangan/{lapangan}', [LapanganController::class, 'destroy'])
         ->name('penyedia.lapangan.destroy');
 });
+
+// Socialite Routes
+Route::get('auth/google', [SocialAuthController::class, 'redirect'])->name('google.redirect');
+Route::get('auth/google/callback', [SocialAuthController::class, 'callback'])->name('google.callback');
