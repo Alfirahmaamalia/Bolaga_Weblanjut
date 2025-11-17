@@ -5,88 +5,168 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Lapangan;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\DB; // <-- DITAMBAHKAN
 
 class LapanganController extends Controller
 {
-    // DASHBOARD PENYEWA — FINAL
+    // ==========================
+    // DASHBOARD PENYEWA (Dummy)
+    // ==========================
     public function dashboard()
     {
-        // Helper gambar
-        $img = function (string $filename, string $fallback) {
-            return file_exists(public_path('images/' . $filename))
-                ? asset('images/' . $filename)
-                : $fallback;
-        };
-
-        // Data dummy (sementara)
         $cards = [
             [
+                'id' => 1,
                 'jenis' => 'Futsal',
                 'nama' => 'Arena Futsal Nusantara',
                 'harga' => 150000,
                 'lokasi' => 'Jakarta Selatan',
                 'fasilitas' => ['AC', 'Parkir', 'Toilet', 'Kantin'],
-                'gambar' => $img('futsal.jpg', 'https://images.unsplash.com/photo-1546519638-68e109498ffc?w=1200'),
+                'gambar' => asset('images/futsal.jpg'),
             ],
             [
+                'id' => 2,
                 'jenis' => 'Badminton',
                 'nama' => 'Satria Nugraha Badminton',
                 'harga' => 250000,
                 'lokasi' => 'Tanjung Karang Pusat',
                 'fasilitas' => ['AC', 'Raket Pinjaman', 'Toilet', 'Kantin'],
-                'gambar' => $img('badminton.jpg', asset('images/lapangan.jpg')),
+                'gambar' => asset('images/badminton.jpg'),
             ],
             [
+                'id' => 3,
                 'jenis' => 'Basket',
                 'nama' => 'Satria Nugraha Basket',
                 'harga' => 250000,
                 'lokasi' => 'Tanjung Karang Pusat',
                 'fasilitas' => ['AC', 'Parkir', 'Toilet', 'Kantin'],
-                'gambar' => $img('basket.jpg', 'https://images.unsplash.com/photo-1531312267124-2f7f7486f7b0?w=1200'),
+                'gambar' => asset('images/baskett.jpg'),
             ],
             [
+                'id' => 4,
                 'jenis' => 'Voli',
                 'nama' => 'Samudra Volley Court',
                 'harga' => 200000,
                 'lokasi' => 'Bandung',
                 'fasilitas' => ['Parkir', 'Toilet', 'Kantin'],
-                'gambar' => $img('voli.jpg', 'https://images.unsplash.com/photo-1540747913346-19e32dc3e97e?w=1200'),
+                'gambar' => asset('images/volly.jpg'),
             ],
             [
+                'id' => 5,
                 'jenis' => 'Sepak Bola',
                 'nama' => 'Garuda Soccer Field',
                 'harga' => 350000,
                 'lokasi' => 'Depok',
                 'fasilitas' => ['Rumput Sintetis', 'Parkir Luas', 'Tribun'],
-                'gambar' => 'https://images.unsplash.com/photo-1509025673553-26b5c0c02f66?q=80&w=1200&auto=format&fit=crop'
+                'gambar' => asset('images/lapangan.jpg'),
             ],
             [
-                'jenis' => 'Mini Soccer',
-                'nama' => 'Galaxy Mini Soccer',
+                'id' => 6,
+                'jenis' => 'Tenis',
+                'nama' => 'Galaxy Tennis Court',
                 'harga' => 180000,
                 'lokasi' => 'Bekasi',
                 'fasilitas' => ['Rumput Sintetis', 'Toilet', 'Kantin'],
-                'gambar' => 'https://images.unsplash.com/photo-1521412644187-c49fa049e84d?q=80&w=1200&auto=format&fit=crop'
+                'gambar' => asset('images/tenis.jpg'),
             ],
         ];
 
         $items = array_merge($cards, $cards);
-
         return view('penyewa.dashboard', compact('items'));
     }
 
+
+    // ==========================
+    // DETAIL LAPANGAN
+    // ==========================
     public function detail($id)
-{
-    $lapangan = Lapangan::findOrFail($id);
+    {
+        $dummy = [
+            1 => [
+                'lapangan_id' => 1,
+                'nama_lapangan' => 'Arena Futsal Nusantara',
+                'jenis_olahraga' => 'Futsal',
+                'lokasi' => 'Jakarta Selatan',
+                'deskripsi' => 'Lapangan futsal berkualitas tinggi dengan fasilitas lengkap.',
+                'harga_perjam' => 150000,
+                'foto' => 'images/futsal.jpg',
+                'fasilitas' => ['AC', 'Parkir', 'Toilet', 'Kantin'],
+                'aktif' => true,
+            ],
+            2 => [
+                'lapangan_id' => 2,
+                'nama_lapangan' => 'Satria Nugraha Badminton',
+                'jenis_olahraga' => 'Badminton',
+                'lokasi' => 'Tanjung Karang Pusat',
+                'deskripsi' => 'Lapangan badminton indoor dengan raket pinjaman.',
+                'harga_perjam' => 250000,
+                'foto' => 'images/badminton.jpg',
+                'fasilitas' => ['AC', 'Raket Pinjaman', 'Toilet', 'Kantin'],
+                'aktif' => true,
+            ],
+            3 => [
+                'lapangan_id' => 3,
+                'nama_lapangan' => 'Satria Nugraha Basket',
+                'jenis_olahraga' => 'Basket',
+                'lokasi' => 'Tanjung Karang Pusat',
+                'deskripsi' => 'Lapangan basket outdoor dengan tribun.',
+                'harga_perjam' => 250000,
+                'foto' => 'images/baskett.jpg',
+                'fasilitas' => ['AC', 'Parkir', 'Toilet', 'Kantin'],
+                'aktif' => true,
+            ],
+            4 => [
+                'lapangan_id' => 4,
+                'nama_lapangan' => 'Samudra Volley Court',
+                'jenis_olahraga' => 'Voli',
+                'lokasi' => 'Bandung',
+                'deskripsi' => 'Lapangan voli dengan pemandangan laut.',
+                'harga_perjam' => 200000,
+                'foto' => 'images/volly.jpg',
+                'fasilitas' => ['Parkir', 'Toilet', 'Kantin'],
+                'aktif' => true,
+            ],
+            5 => [
+                'lapangan_id' => 5,
+                'nama_lapangan' => 'Garuda Soccer Field',
+                'jenis_olahraga' => 'Sepak Bola',
+                'lokasi' => 'Depok',
+                'deskripsi' => 'Lapangan sepak bola dengan rumput sintetis.',
+                'harga_perjam' => 350000,
+                'foto' => 'images/lapangan.jpg',
+                'fasilitas' => ['Rumput Sintetis', 'Parkir Luas', 'Tribun'],
+                'aktif' => true,
+            ],
+            6 => [
+                'lapangan_id' => 6,
+                'nama_lapangan' => 'Galaxy Tennis Court',
+                'jenis_olahraga' => 'Tenis',
+                'lokasi' => 'Bekasi',
+                'deskripsi' => 'Lapangan tenis dengan fasilitas premium.',
+                'harga_perjam' => 180000,
+                'foto' => 'images/tenis.jpg',
+                'fasilitas' => ['Rumput Sintetis', 'Toilet', 'Kantin'],
+                'aktif' => true,
+            ],
+        ];
 
-    return view('penyewa.detail', compact('lapangan'));
-}
+        if (array_key_exists($id, $dummy)) {
+            $lapangan = (object) $dummy[$id];
+        } else {
+            $lapangan = Lapangan::findOrFail($id);
+            if (is_string($lapangan->fasilitas)) {
+                $lapangan->fasilitas = array_map('trim', explode(',', $lapangan->fasilitas));
+            }
+        }
+
+        return view('penyewa.detail', compact('lapangan'));
+    }
 
 
 
-    // ============================
-    // FUNGSI PENYEDIA (SUDAH ADA)
-    // ============================
+    // ==========================
+    // FUNGSI PENYEDIA
+    // ==========================
 
     public function kelolalapangan()
     {
@@ -158,4 +238,134 @@ class LapanganController extends Controller
         $lap->delete();
         return redirect()->route('penyedia.kelolalapangan')->with('success', 'Lapangan berhasil dihapus.');
     }
+
+
+    // =====================================================
+    // 🔥 FITUR BARU — CEK KETERSEDIAAN SLOT BOOKING
+    // =====================================================
+    public function cekSlot(Request $r)
+    {
+        $ada = DB::table('booking')
+            ->where('lapangan_id', $r->lapangan_id)
+            ->where('tanggal', $r->tanggal)
+            ->where(function ($q) use ($r) {
+                $q->whereBetween('jam_mulai', [$r->jam_mulai, $r->jam_selesai])
+                  ->orWhereBetween('jam_selesai', [$r->jam_mulai, $r->jam_selesai]);
+            })
+            ->exists();
+
+        return response()->json([
+            'available' => !$ada
+        ]);
+    }
+
+    // =====================================================
+    // 🔥 FITUR BARU — HALAMAN KONFIRMASI BOOKING
+    // =====================================================
+    public function konfirmasi(Request $r)
+    {
+        // Dummy data (matching detail method)
+        $dummy = [
+            1 => [
+                'lapangan_id' => 1,
+                'nama_lapangan' => 'Arena Futsal Nusantara',
+                'jenis_olahraga' => 'Futsal',
+                'lokasi' => 'Jakarta Selatan',
+                'deskripsi' => 'Lapangan futsal berkualitas tinggi dengan fasilitas lengkap.',
+                'harga_perjam' => 150000,
+                'foto' => 'images/futsal.jpg',
+                'fasilitas' => ['AC', 'Parkir', 'Toilet', 'Kantin'],
+                'aktif' => true,
+            ],
+            2 => [
+                'lapangan_id' => 2,
+                'nama_lapangan' => 'Satria Nugraha Badminton',
+                'jenis_olahraga' => 'Badminton',
+                'lokasi' => 'Tanjung Karang Pusat',
+                'deskripsi' => 'Lapangan badminton indoor dengan raket pinjaman.',
+                'harga_perjam' => 250000,
+                'foto' => 'images/badminton.jpg',
+                'fasilitas' => ['AC', 'Raket Pinjaman', 'Toilet', 'Kantin'],
+                'aktif' => true,
+            ],
+            3 => [
+                'lapangan_id' => 3,
+                'nama_lapangan' => 'Satria Nugraha Basket',
+                'jenis_olahraga' => 'Basket',
+                'lokasi' => 'Tanjung Karang Pusat',
+                'deskripsi' => 'Lapangan basket outdoor dengan tribun.',
+                'harga_perjam' => 250000,
+                'foto' => 'images/baskett.jpg',
+                'fasilitas' => ['AC', 'Parkir', 'Toilet', 'Kantin'],
+                'aktif' => true,
+            ],
+            4 => [
+                'lapangan_id' => 4,
+                'nama_lapangan' => 'Samudra Volley Court',
+                'jenis_olahraga' => 'Voli',
+                'lokasi' => 'Bandung',
+                'deskripsi' => 'Lapangan voli dengan pemandangan laut.',
+                'harga_perjam' => 200000,
+                'foto' => 'images/volly.jpg',
+                'fasilitas' => ['Parkir', 'Toilet', 'Kantin'],
+                'aktif' => true,
+            ],
+            5 => [
+                'lapangan_id' => 5,
+                'nama_lapangan' => 'Garuda Soccer Field',
+                'jenis_olahraga' => 'Sepak Bola',
+                'lokasi' => 'Depok',
+                'deskripsi' => 'Lapangan sepak bola dengan rumput sintetis.',
+                'harga_perjam' => 350000,
+                'foto' => 'images/lapangan.jpg',
+                'fasilitas' => ['Rumput Sintetis', 'Parkir Luas', 'Tribun'],
+                'aktif' => true,
+            ],
+            6 => [
+                'lapangan_id' => 6,
+                'nama_lapangan' => 'Galaxy Tennis Court',
+                'jenis_olahraga' => 'Tenis',
+                'lokasi' => 'Bekasi',
+                'deskripsi' => 'Lapangan tenis dengan fasilitas premium.',
+                'harga_perjam' => 180000,
+                'foto' => 'images/tenis.jpg',
+                'fasilitas' => ['Rumput Sintetis', 'Toilet', 'Kantin'],
+                'aktif' => true,
+            ],
+        ];
+
+        if (array_key_exists($r->lapangan_id, $dummy)) {
+            $lapangan = (object) $dummy[$r->lapangan_id];
+        } else {
+            $lapangan = Lapangan::findOrFail($r->lapangan_id);
+        }
+
+        // Parse jam (format: "08:00 - 10:00")
+        $jamParts = explode(' - ', $r->jam);
+        $jam_mulai = $jamParts[0] ?? '08:00';
+        $jam_selesai = $jamParts[1] ?? '10:00';
+
+        // Hitung total (harga + admin)
+        $admin = 5000;
+        $total = $lapangan->harga_perjam + $admin;
+
+        return view('penyewa.konfirmasi', [
+            'lapangan' => $lapangan,
+            'tanggal'  => $r->tanggal,
+            'jam' => $r->jam,
+            'jam_mulai' => $jam_mulai,
+            'jam_selesai' => $jam_selesai,
+            'admin' => $admin,
+            'total' => $total
+        ]);
+    }
+
+    public function pembayaran(Request $request)
+{
+    return view('penyewa.pembayaran', [
+        'data' => $request->all()
+    ]);
+}
+
+
 }

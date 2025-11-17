@@ -12,61 +12,78 @@
 <body>
    
 <!-- Navbar -->
-<nav class="w-100 border-bottom bg-white" style="height:65px;">
-    <div class="container-fluid d-flex align-items-center justify-content-between h-100 px-4">
+<nav class="navbar navbar-expand-lg bg-white border-bottom shadow-sm py-2">
+    <div class="container-fluid">
 
         {{-- Logo --}}
-        <a href="{{ route('penyewa.dashboard') }}" 
-           class="fw-bold fs-4 text-dark"
-           style="font-family: 'Georgia', serif;">
+        <a class="navbar-brand fw-bold fs-4" 
+           href="{{ route('penyewa.dashboard') }}"
+           style="font-family:'Georgia', serif;">
             Bolaga
         </a>
 
-        {{-- Middle Menu --}}
-        <div class="d-flex align-items-center gap-4">
+        {{-- Toggle Mobile --}}
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNavbar">
+            <span class="navbar-toggler-icon"></span>
+        </button>
 
-            {{-- Search Icon --}}
-            <a href="#" class="text-dark" style="font-size:18px;">
-                <i class="bi bi-search"></i>
-            </a>
+        {{-- MENU --}}
+        <div class="collapse navbar-collapse justify-content-end" id="mainNavbar">
 
-            <a href="{{ route('penyewa.booking') }}" class="text-dark text-decoration-none">
-                Riwayat
-            </a>
+            {{-- MENU TEPAT DI SEBELAH KANAN --}}
+            <ul class="navbar-nav d-flex align-items-center gap-4">
 
-            <a href="{{ route('penyewa.dashboard') }}" class="text-dark text-decoration-none">
-                Beranda
-            </a>
-
-            <a href="#kategori" class="text-dark text-decoration-none">
-                Kategori
-            </a>
-        </div>
-
-        {{-- Profile Picture Dropdown --}}
-        <div class="dropdown">
-            <a class="d-flex align-items-center dropdown-toggle" 
-               href="#" role="button" data-bs-toggle="dropdown">
-               
-                <img src="{{ Auth::user()->foto ?? asset('images/default-profile.png') }}"
-                     onerror="this.src='https://cdn-icons-png.flaticon.com/512/847/847969.png'"
-                     class="rounded-circle"
-                     width="38" height="38"
-                     style="object-fit: cover;">
-            </a>
-
-            <ul class="dropdown-menu dropdown-menu-end mt-2">
-                <li>
-                    <a class="dropdown-item" href="#">Profil Saya</a>
+                {{-- Riwayat --}}
+                <li class="nav-item">
+                    <a class="nav-link {{ request()->routeIs('penyewa.booking') ? 'fw-semibold' : '' }}"
+                       href="{{ route('penyewa.booking') }}">
+                        Riwayat
+                    </a>
                 </li>
-                <li><hr class="dropdown-divider"></li>
-                <li>
-                    <form action="{{ route('logout') }}" method="POST">
-                        @csrf
-                        <button class="dropdown-item text-danger">Logout</button>
-                    </form>
+
+                {{-- Beranda --}}
+                <li class="nav-item">
+                    <a class="nav-link {{ request()->routeIs('penyewa.dashboard') ? 'fw-semibold' : '' }}"
+                       href="{{ route('penyewa.dashboard') }}">
+                        Beranda
+                    </a>
                 </li>
+
+                {{-- Kategori --}}
+                <li class="nav-item">
+                    <a class="nav-link" href="#kategori">Kategori</a>
+                </li>
+
+                {{-- Profile Dropdown --}}
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle d-flex align-items-center" 
+                       href="#" role="button" data-bs-toggle="dropdown">
+
+                        <img src="{{ Auth::user()->foto ?? asset('images/default-profile.png') }}"
+                             onerror="this.src='https://cdn-icons-png.flaticon.com/512/847/847969.png'"
+                             class="rounded-circle border"
+                             width="38" height="38"
+                             style="object-fit:cover;">
+                    </a>
+
+                    <ul class="dropdown-menu dropdown-menu-end shadow-sm">
+                        <li>
+                            <a class="dropdown-item" href="#">Profil Saya</a>
+                        </li>
+
+                        <li><hr class="dropdown-divider"></li>
+
+                        <li>
+                            <form action="{{ route('logout') }}" method="POST">
+                                @csrf
+                                <button class="dropdown-item text-danger">Logout</button>
+                            </form>
+                        </li>
+                    </ul>
+                </li>
+
             </ul>
+
         </div>
 
     </div>
