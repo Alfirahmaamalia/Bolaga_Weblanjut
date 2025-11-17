@@ -3,6 +3,7 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\LapanganController;
+use App\Http\Controllers\SocialAuthController;
 
 // Route::get('/', function () {
 //     return redirect()->route('login');
@@ -51,3 +52,7 @@ Route::middleware('auth')->group(function () {
     Route::put('/penyedia/lapangan/{lapangan}', [LapanganController::class, 'update'])->name('penyedia.lapangan.update');
     Route::delete('/penyedia/lapangan/{lapangan}', [LapanganController::class, 'destroy'])->name('penyedia.lapangan.destroy');
 });
+
+// Socialite Routes
+Route::get('auth/google', [SocialAuthController::class, 'redirect'])->name('google.redirect');
+Route::get('auth/google/callback', [SocialAuthController::class, 'callback'])->name('google.callback');

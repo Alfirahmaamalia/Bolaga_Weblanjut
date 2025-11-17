@@ -144,7 +144,7 @@
                         </div>
 
                         <a 
-                            href="#" 
+                            href="{{ route('google.redirect') }}"
                             class="mt-6 w-full flex items-center justify-center gap-3 border-2 border-gray-300 text-gray-700 py-3 rounded-md font-medium hover:bg-gray-50 transition focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2"
                         >
                             <svg class="w-5 h-5" viewBox="0 0 24 24">
