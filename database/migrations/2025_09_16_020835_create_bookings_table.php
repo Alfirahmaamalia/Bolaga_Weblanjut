@@ -11,16 +11,16 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('booking', function (Blueprint $table) {
-            $table->id('booking_id');
-            $table->foreignId('lapangan_id')->constrained('lapangan', 'lapangan_id');
-            $table->foreignId('penyewa_id')->constrained('users', 'user_id');
-            $table->date('tanggal');
-            $table->time('jam_mulai');
-            $table->time('jam_selesai');
-            $table->integer('total_harga');
-            $table->string('status');
-            $table->timestamps();
+       Schema::create('booking', function (Blueprint $table) {
+        $table->id('booking_id');
+        $table->foreignId('lapangan_id')->constrained('lapangan', 'id')->cascadeOnDelete();
+        $table->foreignId('penyewa_id')->constrained('users', 'user_id')->cascadeOnDelete();
+        $table->date('tanggal');
+        $table->time('jam_mulai');
+        $table->time('jam_selesai');
+        $table->integer('total_harga');
+        $table->string('status');
+        $table->timestamps();
         });
     }
 
