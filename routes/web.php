@@ -5,6 +5,8 @@ use Illuminate\Support\Facades\Auth;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\LapanganController;
 use App\Http\Controllers\SocialAuthController;
+use App\Models\User;
+use Laravel\Socialite\Facades\Socialite;
 
 Route::get('/', function () {
     if (Auth::check()) {
@@ -16,10 +18,12 @@ Route::get('/', function () {
     return redirect()->route('login');
 });
 
-// Beranda / Pencarian Lapangan
 Route::get('/beranda', function () {
     return view('beranda');
 });
+
+Route::get('/auth/google/redirect', [AuthController::class, 'googleRedirect'])->name('google.redirect');
+Route::get('/auth/google/callback', [AuthController::class, 'googleCallback'])->name('google.callback');
 
 // Authentication Routes
 Route::middleware('guest')->group(function () {
@@ -75,7 +79,3 @@ Route::middleware('auth')->group(function () {
     Route::delete('/penyedia/lapangan/{lapangan}', [LapanganController::class, 'destroy'])
         ->name('penyedia.lapangan.destroy');
 });
-
-// Socialite Routes
-Route::get('auth/google', [SocialAuthController::class, 'redirect'])->name('google.redirect');
-Route::get('auth/google/callback', [SocialAuthController::class, 'callback'])->name('google.callback');
