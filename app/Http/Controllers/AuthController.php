@@ -7,7 +7,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\ValidationException;
-
+use Laravel\Socialite\Facades\Socialite;
 class AuthController extends Controller
 {
     /**
@@ -92,9 +92,6 @@ class AuthController extends Controller
         ]);
     }
 
-    /**
-     * Handle logout
-     */
     public function logout(Request $request)
     {
         Auth::logout();
@@ -103,5 +100,37 @@ class AuthController extends Controller
 
         return redirect()->route('login');
     }
+    public function googleRedirect()
+{
+    return Socialite::driver('google')->redirect();
+}
+
+public function googleCallback()
+{
+    try {
+        $googleUser = Socialite::driver('google')->user();
+
+        $user = User::where('email', $googleUser->getEmail())->first();
+
+        if (!$user) {
+            $user = User::create([
+                'nama' => $googleUser->getName(),
+                'email' => $googleUser->getEmail(),
+                'password' => bcrypt('google_default_password'),
+                'role' => 'penyewa', // default login sebagai penyewa
+                'foto' => $googleUser->getAvatar(),
+            ]);
+        }
+
+        Auth::login($user);
+
+        return $user->role === 'penyedia'
+            ? redirect()->route('penyedia.dashboard')
+            : redirect()->route('penyewa.dashboard');
+
+    } catch (\Exception $e) {
+        return redirect()->route('login')->with('error', 'Google login gagal.');
+    }
+}
 }
 
