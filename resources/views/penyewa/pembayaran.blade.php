@@ -1,45 +1,33 @@
 @extends('layouts.app')
 
-@section('title', 'Pembayaran')
+@section('title', 'Konfirmasi Booking')
 
 @section('content')
-<div class="container py-4">
+{{-- Kontainer utama, d-flex sudah benar untuk centering vertikal dan horizontal --}}
+<div class="flex items-center justify-center min-h-screen">
+    {{-- Wrapper untuk mengatur lebar maksimum card --}}
+    <div class="w-full max-w-sm p-4 md:p-6 lg:max-w-md"> 
 
-    <a href="{{ url()->previous() }}" class="text-dark text-decoration-none mb-3 d-inline-block">
-        <i class="bi bi-arrow-left"></i> Kembali
-    </a>
+        <!-- ... Bagian Detail Lapangan di sini ... -->
 
-    <div class="card p-4 shadow-sm">
-
-        <h3 class="fw-bold mb-4">Pembayaran</h3>
-
-        <p><strong>Total Dibayar:</strong>
-            <span class="text-success fw-bold">
-                Rp{{ number_format($data['total'],0,',','.') }}
-            </span>
-        </p>
-
-        <hr>
-
-        <h5 class="fw-bold">Transfer Ke:</h5>
-        <p>
-            BRI - 1234 5678 9123  
-            <br> a/n Bolaga Indonesia
-        </p>
-
-        <hr>
-
-        <form action="#" method="POST" enctype="multipart/form-data">
+        {{-- Form Pembayaran --}}
+        {{-- PASTIKAN action-nya BENAR menunjuk ke rute POST /pembayaran --}}
+        <form action="{{ route('penyewa.booking.pembayaran') }}" method="POST" class="mt-8">
             @csrf
 
-            <label class="form-label">Upload Bukti Pembayaran</label>
-            <input type="file" name="bukti" class="form-control mb-3" required>
+            {{-- Hidden Input yang dikirimkan ke Controller pembayaran --}}
+            <input type="hidden" name="lapangan_id" value="{{ $lapangan->id }}">
+            <input type="hidden" name="tanggal" value="{{ $tanggal }}">
+            <input type="hidden" name="jam" value="{{ $jam }}">
+            <input type="hidden" name="jam_mulai" value="{{ $jam_mulai }}">
+            <input type="hidden" name="jam_selesai" value="{{ $jam_selesai }}">
+            <input type="hidden" name="total" value="{{ $total }}">
 
-            <button class="btn btn-primary w-100 py-2">
-                Kirim Bukti Pembayaran
+            <button type="submit" class="w-full py-3 px-4 bg-green-600 text-white font-semibold rounded-lg shadow-md hover:bg-green-700 transition duration-300 ease-in-out focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2">
+                Lanjut ke Pembayaran
             </button>
         </form>
-    </div>
 
+    </div>
 </div>
 @endsection

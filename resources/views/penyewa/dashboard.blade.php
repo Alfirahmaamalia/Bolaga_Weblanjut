@@ -1,241 +1,127 @@
-<!DOCTYPE html>
-<html lang="id">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard Penyewa - Bolaga</title>
+@extends('layouts.app')
 
-    <!-- Bootstrap CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+@section('title', 'Dashboard Penyewa')
 
-    <!-- Bootstrap Icons -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
+@section('content')
 
-    @vite(['resources/css/app.css', 'resources/js/app.js'])
-</head>
-
-<body class="bg-light">
-
-<!-- ========================= NAVBAR ========================= -->
-<nav class="navbar navbar-expand-lg bg-white border-bottom shadow-sm py-2">
-    <div class="container-fluid">
-
-        {{-- Logo --}}
-        <a class="navbar-brand fw-bold fs-4" 
-           href="{{ route('penyewa.dashboard') }}"
-           style="font-family:'Georgia', serif;">
-            Bolaga
-        </a>
-
-        {{-- Toggle Mobile --}}
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNavbar">
-            <span class="navbar-toggler-icon"></span>
-        </button>
-
-        {{-- MENU --}}
-        <div class="collapse navbar-collapse justify-content-end" id="mainNavbar">
-
-            {{-- MENU TEPAT DI SEBELAH KANAN --}}
-            <ul class="navbar-nav d-flex align-items-center gap-4">
-
-                {{-- Riwayat --}}
-                <li class="nav-item">
-                    <a class="nav-link {{ request()->routeIs('penyewa.booking') ? 'fw-semibold' : '' }}"
-                       href="{{ route('penyewa.booking') }}">
-                        Riwayat
-                    </a>
-                </li>
-
-                {{-- Beranda --}}
-                <li class="nav-item">
-                    <a class="nav-link {{ request()->routeIs('penyewa.dashboard') ? 'fw-semibold' : '' }}"
-                       href="{{ route('penyewa.dashboard') }}">
-                        Beranda
-                    </a>
-                </li>
-
-                {{-- Kategori --}}
-                <li class="nav-item">
-                    <a class="nav-link" href="#kategori">Kategori</a>
-                </li>
-
-                {{-- Profile Dropdown --}}
-                <li class="nav-item dropdown">
-                    <a class="nav-link dropdown-toggle d-flex align-items-center" 
-                       href="#" role="button" data-bs-toggle="dropdown">
-
-                        <img src="{{ Auth::user()->foto ?? asset('images/default-profile.png') }}"
-                             onerror="this.src='https://cdn-icons-png.flaticon.com/512/847/847969.png'"
-                             class="rounded-circle border"
-                             width="38" height="38"
-                             style="object-fit:cover;">
-                    </a>
-
-                    <ul class="dropdown-menu dropdown-menu-end shadow-sm">
-                        <li>
-                            <a class="dropdown-item" href="#">Profil Saya</a>
-                        </li>
-
-                        <li><hr class="dropdown-divider"></li>
-
-                        <li>
-                            <form action="{{ route('logout') }}" method="POST">
-                                @csrf
-                                <button class="dropdown-item text-danger">Logout</button>
-                            </form>
-                        </li>
-                    </ul>
-                </li>
-
-            </ul>
-
-        </div>
-
-    </div>
-</nav>
-
-
-
-<!-- ========================= MAIN CONTENT ========================= -->
-<main class="container py-5">
+<div class="max-w-7xl mx-auto px-4 py-6">
 
     <!-- Section Title -->
-    <section class="text-center mb-5">
-        <h1 class="fw-bold fs-2">CARI LAPANGAN OLAHRAGA</h1>
-        <p class="text-muted">Temukan lapangan terbaik sesuai kebutuhanmu</p>
+    <section class="text-center mb-10">
+        <h1 class="text-3xl font-bold">CARI LAPANGAN OLAHRAGA</h1>
+        <p class="text-gray-600">Temukan lapangan terbaik sesuai kebutuhanmu</p>
     </section>
 
+    <!-- FILTER BAR -->
+    <section class="bg-white rounded-xl p-6 shadow-md mb-10">
+        <form method="GET" class="grid md:grid-cols-4 gap-6">
 
-    <!-- ========================= FILTER BAR ========================= -->
-    <section class="bg-white border rounded-4 p-4 shadow-sm mb-5">
+            <!-- Jenis Olahraga -->
+            <div>
+                <label class="block font-semibold mb-1">Jenis Olahraga</label>
+                <select class="w-full rounded-lg p-2 bg-gray-100 focus:bg-white focus:ring-2 focus:ring-gray-400">
+                    <option>Semua</option>
+                    <option>Futsal</option>
+                    <option>Badminton</option>
+                    <option>Basket</option>
+                    <option>Voli</option>
+                    <option>Tenis</option>
+                </select>
+            </div>
 
-        <form method="GET">
+            <!-- Lokasi -->
+            <div>
+                <label class="block font-semibold mb-1">Lokasi</label>
+                <select class="w-full rounded-lg p-2 bg-gray-100 focus:bg-white focus:ring-2 focus:ring-gray-400">
+                    <option>Semua Lokasi</option>
+                    <option>Jakarta</option>
+                    <option>Bandung</option>
+                    <option>Surabaya</option>
+                    <option>Yogyakarta</option>
+                </select>
+            </div>
 
-            <div class="row g-4">
+            <!-- Rentang Harga -->
+            <div>
+                <label class="block font-semibold mb-1">Rentang Harga</label>
+                <select class="w-full rounded-lg p-2 bg-gray-100 focus:bg-white focus:ring-2 focus:ring-gray-400">
+                    <option>Semua Harga</option>
+                    <option><= Rp100.000</option>
+                    <option>Rp100.000 - Rp250.000</option>
+                    <option>>= Rp250.000</option>
+                </select>
+            </div>
 
-                <!-- Jenis Olahraga -->
-                <div class="col-md-3">
-                    <label class="form-label fw-semibold">Jenis Olahraga</label>
-                    <select class="form-select">
-                        <option>Semua</option>
-                        <option>Futsal</option>
-                        <option>Badminton</option>
-                        <option>Basket</option>
-                        <option>Voli</option>
-                        <option>Tenis</option>
-                    </select>
-                </div>
-
-                <!-- Lokasi -->
-                <div class="col-md-3">
-                    <label class="form-label fw-semibold">Lokasi</label>
-                    <select class="form-select">
-                        <option>Semua Lokasi</option>
-                        <option>Jakarta</option>
-                        <option>Bandung</option>
-                        <option>Surabaya</option>
-                        <option>Yogyakarta</option>
-                    </select>
-                </div>
-
-                <!-- Rentang Harga -->
-                <div class="col-md-3">
-                    <label class="form-label fw-semibold">Rentang Harga</label>
-                    <select class="form-select">
-                        <option>Semua Harga</option>
-                        <option><= Rp100.000</option>
-                        <option>Rp100.000 - Rp250.000</option>
-                        <option>>= Rp250.000</option>
-                    </select>
-                </div>
-
-                <!-- Tombol Cari -->
-                <div class="col-md-3">
-                    <label class="form-label fw-semibold">Cari</label>
-                    <button class="btn btn-dark w-100 d-flex justify-content-center align-items-center gap-2">
-                        Cari Lapangan
-                        <i class="bi bi-search"></i>
-                    </button>
-                </div>
-
+            <!-- Cari -->
+            <div>
+                <label class="block font-semibold mb-1">Cari</label>
+                <button class="w-full bg-gray-900 text-white py-2 rounded-lg flex items-center justify-center gap-2 hover:bg-gray-800">
+                    Cari Lapangan
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                              d="M21 21l-4.35-4.35M11 18a7 7 0 100-14 7 7 0 000 14z" />
+                    </svg>
+                </button>
             </div>
 
         </form>
-
     </section>
 
-
-    <!-- ========================= GRID LAPANGAN ========================= -->
-    <section class="row g-4">
+    <!-- GRID LAPANGAN -->
+    <section class="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
 
         @foreach($items as $item)
-        <div class="col-sm-6 col-lg-4 col-xl-3">
-            <div class="card h-100 shadow-sm border-0 rounded-4">
+        <div class="bg-white rounded-xl shadow-md overflow-hidden transition hover:shadow-lg">
 
-                <!-- Gambar -->
-                <div class="ratio ratio-4x3">
-                    <img src="{{ $item['gambar'] }}"
-                        class="card-img-top object-fit-cover"
-                        onerror="this.src='https://picsum.photos/600/400?random={{ rand(1,9999) }}'">
+            <img src="{{ $item['gambar'] }}"
+                 class="w-full h-48 object-cover"
+                 onerror="this.src='https://picsum.photos/600/400?random={{ rand(1,9999) }}'">
+
+            <div class="p-4">
+
+                <!-- Jenis + Rating -->
+                <div class="flex justify-between items-center mb-2">
+                    <span class="px-3 py-1 bg-yellow-100 text-yellow-700 rounded-lg text-xs font-semibold">
+                        {{ $item['jenis'] }}
+                    </span>
+                    <span class="text-yellow-500 text-sm flex items-center gap-1">
+                        ★ 4.7
+                    </span>
                 </div>
 
-                <div class="card-body">
+                <h3 class="font-bold text-lg mb-1">{{ $item['nama'] }}</h3>
 
-                    <!-- Jenis + Rating -->
-                    <div class="d-flex justify-content-between align-items-center mb-2">
-                        <span class="badge text-dark px-3 py-2" style="background-color:#FDE68A;">
-                            {{ $item['jenis'] }}
-                        </span>
+                <p class="text-gray-600 text-sm mb-2 flex items-center gap-1">
+                    📍 {{ $item['lokasi'] }}
+                </p>
 
-                        <span class="text-warning d-flex align-items-center gap-1">
-                            <i class="bi bi-star-fill"></i> 4.7
-                        </span>
-                    </div>
+                <p class="text-sm text-gray-600 mb-1">Fasilitas:</p>
+                <div class="flex flex-wrap gap-2 mb-4">
+                    @foreach($item['fasilitas'] as $f)
+                    <span class="bg-green-100 text-green-700 px-2 py-1 rounded-full text-xs">
+                        {{ $f }}
+                    </span>
+                    @endforeach
+                </div>
 
-                    <!-- Nama -->
-                    <h5 class="fw-bold mb-2">{{ $item['nama'] }}</h5>
-
-                    <!-- Lokasi -->
-                    <p class="text-muted small d-flex align-items-center gap-1 mb-2">
-                        <i class="bi bi-geo-alt"></i> {{ $item['lokasi'] }}
+                <div class="flex justify-between items-center">
+                    <p class="font-bold">
+                        Rp{{ number_format($item['harga'],0,',','.') }}
+                        <span class="text-sm text-gray-600">/jam</span>
                     </p>
 
-                    <!-- Fasilitas -->
-                    <p class="text-muted small mb-1">Fasilitas:</p>
-                    <div class="d-flex flex-wrap gap-2 mb-3">
-                        @foreach($item['fasilitas'] as $f)
-                        <span class="badge rounded-pill border border-success text-success"
-                              style="background-color:#ECFDF5; font-size:12px;">
-                            {{ $f }}
-                        </span>
-                        @endforeach
-                    </div>
-
-                    <!-- Harga + Booking -->
-                    <div class="d-flex justify-content-between align-items-center">
-                        <div class="fw-bold">
-                            Rp{{ number_format($item['harga'],0,',','.') }}
-                            <span class="text-muted small">/jam</span>
-                        </div>
-
-                        <a href="{{ route('penyewa.lapangan.detail', $item['id']) }}"
-   						class="px-4 py-2 bg-green-600 text-white rounded-full text-xs hover:bg-green-700">
-                            Booking
-                        </a>
-                    </div>
-
+                    <a href="{{ route('penyewa.lapangan.detail', $item['id']) }}"
+                       class="px-4 py-2 bg-green-600 text-white rounded-full text-xs hover:bg-green-700">
+                        Booking
+                    </a>
                 </div>
+
             </div>
         </div>
         @endforeach
 
     </section>
 
-</main>
+</div>
 
-
-<!-- Bootstrap JS -->
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-
-</body>
-</html>
+@endsection

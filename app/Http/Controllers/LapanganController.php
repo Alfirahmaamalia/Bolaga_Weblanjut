@@ -5,7 +5,8 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Lapangan;
 use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Facades\DB; // <-- DITAMBAHKAN
+use Illuminate\Support\Facades\DB;
+use Carbon\Carbon;
 
 class LapanganController extends Controller
 {
@@ -75,7 +76,8 @@ class LapanganController extends Controller
         return view('penyewa.dashboard', compact('items'));
     }
 
-
+    // ---
+    
     // ==========================
     // DETAIL LAPANGAN
     // ==========================
@@ -162,7 +164,7 @@ class LapanganController extends Controller
         return view('penyewa.detail', compact('lapangan'));
     }
 
-
+    // ---
 
     // ==========================
     // FUNGSI PENYEDIA
@@ -201,7 +203,8 @@ class LapanganController extends Controller
 
     public function update(Request $request, $id)
     {
-        $lap = Lapangan::where('lapangan_id', $id)->where('penyedia_id', auth()->id())->firstOrFail();
+        // Mencari berdasarkan kolom 'id' (Primary Key)
+        $lap = Lapangan::where('id', $id)->where('penyedia_id', auth()->id())->firstOrFail();
 
         $v = $request->validate([
             'nama_lapangan' => 'required|string|max:255',
@@ -229,7 +232,8 @@ class LapanganController extends Controller
 
     public function destroy($id)
     {
-        $lap = Lapangan::where('lapangan_id', $id)->where('penyedia_id', auth()->id())->firstOrFail();
+        // Mencari berdasarkan kolom 'id' (Primary Key)
+        $lap = Lapangan::where('id', $id)->where('penyedia_id', auth()->id())->firstOrFail();
 
         if ($lap->foto && Storage::disk('public')->exists($lap->foto)) {
             Storage::disk('public')->delete($lap->foto);
@@ -239,9 +243,10 @@ class LapanganController extends Controller
         return redirect()->route('penyedia.kelolalapangan')->with('success', 'Lapangan berhasil dihapus.');
     }
 
+    // ---
 
     // =====================================================
-    // 🔥 FITUR BARU — CEK KETERSEDIAAN SLOT BOOKING
+    // FITUR BARU — CEK KETERSEDIAAN SLOT BOOKING
     // =====================================================
     public function cekSlot(Request $r)
     {
@@ -259,12 +264,18 @@ class LapanganController extends Controller
         ]);
     }
 
+    // ---
+
     // =====================================================
-    // 🔥 FITUR BARU — HALAMAN KONFIRMASI BOOKING
+    // 🔥 METHOD KONFIRMASI (ROBUST)
     // =====================================================
     public function konfirmasi(Request $r)
     {
-        // Dummy data (matching detail method)
+        // GUARD CLAUSE: Pastikan parameter esensial ada
+        if (!$r->filled(['lapangan_id', 'tanggal', 'jam'])) {
+            return redirect()->route('penyewa.dashboard')->withErrors('Booking dibatalkan. Harap pilih lapangan, tanggal, dan jam yang valid.');
+        }
+
         $dummy = [
             1 => [
                 'lapangan_id' => 1,
@@ -288,17 +299,6 @@ class LapanganController extends Controller
                 'fasilitas' => ['AC', 'Raket Pinjaman', 'Toilet', 'Kantin'],
                 'aktif' => true,
             ],
-            3 => [
-                'lapangan_id' => 3,
-                'nama_lapangan' => 'Satria Nugraha Basket',
-                'jenis_olahraga' => 'Basket',
-                'lokasi' => 'Tanjung Karang Pusat',
-                'deskripsi' => 'Lapangan basket outdoor dengan tribun.',
-                'harga_perjam' => 250000,
-                'foto' => 'images/baskett.jpg',
-                'fasilitas' => ['AC', 'Parkir', 'Toilet', 'Kantin'],
-                'aktif' => true,
-            ],
             4 => [
                 'lapangan_id' => 4,
                 'nama_lapangan' => 'Samudra Volley Court',
@@ -310,34 +310,14 @@ class LapanganController extends Controller
                 'fasilitas' => ['Parkir', 'Toilet', 'Kantin'],
                 'aktif' => true,
             ],
-            5 => [
-                'lapangan_id' => 5,
-                'nama_lapangan' => 'Garuda Soccer Field',
-                'jenis_olahraga' => 'Sepak Bola',
-                'lokasi' => 'Depok',
-                'deskripsi' => 'Lapangan sepak bola dengan rumput sintetis.',
-                'harga_perjam' => 350000,
-                'foto' => 'images/lapangan.jpg',
-                'fasilitas' => ['Rumput Sintetis', 'Parkir Luas', 'Tribun'],
-                'aktif' => true,
-            ],
-            6 => [
-                'lapangan_id' => 6,
-                'nama_lapangan' => 'Galaxy Tennis Court',
-                'jenis_olahraga' => 'Tenis',
-                'lokasi' => 'Bekasi',
-                'deskripsi' => 'Lapangan tenis dengan fasilitas premium.',
-                'harga_perjam' => 180000,
-                'foto' => 'images/tenis.jpg',
-                'fasilitas' => ['Rumput Sintetis', 'Toilet', 'Kantin'],
-                'aktif' => true,
-            ],
+            // ... (lanjutkan dummy data 3, 5, 6 di sini jika ada)
         ];
 
         if (array_key_exists($r->lapangan_id, $dummy)) {
             $lapangan = (object) $dummy[$r->lapangan_id];
         } else {
-            $lapangan = Lapangan::findOrFail($r->lapangan_id);
+            // Menggunakan ID yang dikirimkan
+            $lapangan = Lapangan::findOrFail($r->lapangan_id); 
         }
 
         // Parse jam (format: "08:00 - 10:00")
@@ -345,14 +325,21 @@ class LapanganController extends Controller
         $jam_mulai = $jamParts[0] ?? '08:00';
         $jam_selesai = $jamParts[1] ?? '10:00';
 
-        // Hitung total (harga + admin)
+        // Hitung durasi jam
+        $start = Carbon::createFromFormat('H:i', $jam_mulai);
+        $end = Carbon::createFromFormat('H:i', $jam_selesai);
+        $durasi_jam = $end->diffInHours($start);
+        if ($durasi_jam <= 0) $durasi_jam = 1;
+
+        // Hitung total (harga per jam × durasi + admin)
         $admin = 5000;
-        $total = $lapangan->harga_perjam + $admin;
+        $harga_total = $lapangan->harga_perjam * $durasi_jam;
+        $total = $harga_total + $admin;
 
         return view('penyewa.konfirmasi', [
             'lapangan' => $lapangan,
             'tanggal'  => $r->tanggal,
-            'jam' => $r->jam,
+            'jam' => $durasi_jam,
             'jam_mulai' => $jam_mulai,
             'jam_selesai' => $jam_selesai,
             'admin' => $admin,
@@ -360,12 +347,31 @@ class LapanganController extends Controller
         ]);
     }
 
+    // ---
+
+    // =====================================================
+    // 🔥 METHOD PEMBAYARAN (SUDAH BENAR)
+    // =====================================================
     public function pembayaran(Request $request)
-{
-    return view('penyewa.pembayaran', [
-        'data' => $request->all()
-    ]);
-}
+    {
+        // 1. Ambil ID Lapangan dari request (nilai 'id' di database)
+        $lapangan_id = $request->input('lapangan_id');
 
-
+        // 2. Ambil objek Lapangan dari database
+        $lapangan = Lapangan::findOrFail($lapangan_id);
+        
+        // 3. Ambil data lain yang dikirimkan (dari hidden input)
+        $admin = 5000; 
+        
+        // 4. Kirim semua data yang dibutuhkan ke view
+        return view('penyewa.pembayaran', [
+            'lapangan' => $lapangan, 
+            'tanggal' => $request->input('tanggal'),
+            'jam' => $request->input('jam'),
+            'jam_mulai' => $request->input('jam_mulai'),
+            'jam_selesai' => $request->input('jam_selesai'),
+            'total' => $request->input('total'),
+            'admin' => $admin,
+        ]);
+    }
 }

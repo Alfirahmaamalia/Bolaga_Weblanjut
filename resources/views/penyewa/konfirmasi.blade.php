@@ -3,41 +3,93 @@
 @section('title', 'Konfirmasi Booking')
 
 @section('content')
-<div class="container py-4">
+{{-- Kontainer utama: Flexbox untuk menengahkan secara vertikal dan horizontal --}}
+<div class="flex items-center justify-center min-h-screen"> 
+    {{-- Wrapper untuk mengatur lebar maksimum card --}}
+    <div class="w-full max-w-sm p-4 md:p-6 lg:max-w-md"> 
 
-    <a href="{{ url()->previous() }}" class="text-dark text-decoration-none mb-3 d-inline-block">
-        <i class="bi bi-arrow-left"></i> Kembali
-    </a>
+        {{-- Tombol kembali (rata kiri) --}}
+        <div class="mb-4">
+            <a href="{{ url()->previous() }}" class="inline-flex items-center text-sm font-medium text-gray-700 hover:text-gray-900">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+                </svg>
+                Kembali
+            </a>
+        </div>
 
-    <div class="card p-4 shadow-sm">
+        {{-- Judul --}}
+        <h3 class="text-2xl font-extrabold text-gray-900 mb-6 text-left">Konfirmasi Booking</h3>
 
-        <h3 class="fw-bold mb-4">Konfirmasi Booking</h3>
+        {{-- Card Detail Booking (Shadow dan Padding) --}}
+        <div class="bg-white shadow-xl rounded-lg overflow-hidden border border-gray-100">
+            <div class="p-6 sm:p-8">
 
-        <p><strong>Lapangan:</strong> {{ $lapangan->nama_lapangan }}</p>
-        <p><strong>Tanggal:</strong> {{ $tanggal }}</p>
-        <p><strong>Jam:</strong> {{ $jam_mulai }} - {{ $jam_selesai }}</p>
-        <p><strong>Harga:</strong> Rp{{ number_format($lapangan->harga_perjam,0,',','.') }}</p>
-        <p><strong>Biaya Admin:</strong> Rp{{ number_format($admin,0,',','.') }}</p>
+                {{-- Detail Sewa --}}
+                <h4 class="text-lg font-bold text-gray-800 mb-4 border-b pb-2">Detail Sewa</h4>
+                <div class="space-y-3 text-gray-600">
+                    <div class="flex justify-between">
+                        <span class="font-medium">Lapangan:</span>
+                        <span class="font-semibold text-gray-900">{{ $lapangan->nama_lapangan }}</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span class="font-medium">Tanggal:</span>
+                        <span class="font-semibold text-gray-900">{{ \Carbon\Carbon::parse($tanggal)->format('d M Y') }}</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span class="font-medium">Jam (Durasi):</span>
+                        <span class="font-semibold text-gray-900">{{ $jam_mulai }} - {{ $jam_selesai }} ({{ $jam }} Jam)</span>
+                    </div>
+                </div>
 
-        <h4 class="fw-bold text-success mt-3">
-            Total: Rp{{ number_format($total,0,',','.') }}
-        </h4>
+                <hr class="my-6 border-gray-200">
 
-        <form action="{{ route('penyewa.booking.pembayaran') }}" method="POST">
-            @csrf
+                {{-- Rincian Biaya --}}
+                <h4 class="text-lg font-bold text-gray-800 mb-4 border-b pb-2">Rincian Biaya</h4>
+                <div class="space-y-3 text-gray-600">
+                    <div class="flex justify-between">
+                        <span>Harga / Jam</span>
+                        <span>Rp{{ number_format($lapangan->harga_perjam, 0, ',', '.') }}</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span>Subtotal ({{ $jam }} Jam)</span>
+                        <span>Rp{{ number_format($lapangan->harga_perjam * $jam, 0, ',', '.') }}</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span>Biaya Admin</span>
+                        <span>Rp{{ number_format($admin, 0, ',', '.') }}</span>
+                    </div>
+                </div>
 
-            <input type="hidden" name="lapangan_id" value="{{ $lapangan->lapangan_id }}">
-            <input type="hidden" name="tanggal" value="{{ $tanggal }}">
-            <input type="hidden" name="jam" value="{{ $jam }}">
-            <input type="hidden" name="jam_mulai" value="{{ $jam_mulai }}">
-            <input type="hidden" name="jam_selesai" value="{{ $jam_selesai }}">
-            <input type="hidden" name="total" value="{{ $total }}">
+                <hr class="my-6 border-gray-300">
 
-            <button class="btn btn-success w-100 mt-3 py-2">
-                Lanjut ke Pembayaran
-            </button>
-        </form>
+                {{-- Total --}}
+                <div class="flex justify-between items-center py-2">
+                    <span class="text-xl font-extrabold text-gray-900">TOTAL BAYAR</span>
+                    <span class="text-2xl font-extrabold text-green-600">Rp{{ number_format($total, 0, ',', '.') }}</span>
+                </div>
+
+
+                {{-- Form Pembayaran --}}
+                <form action="{{ route('penyewa.booking.pembayaran') }}" method="POST" class="mt-8">
+                    @csrf
+
+                    {{-- Hidden Input --}}
+                    <input type="hidden" name="lapangan_id" value="{{ $lapangan->lapangan_id }}">
+                    <input type="hidden" name="tanggal" value="{{ $tanggal }}">
+                    <input type="hidden" name="jam" value="{{ $jam }}">
+                    <input type="hidden" name="jam_mulai" value="{{ $jam_mulai }}">
+                    <input type="hidden" name="jam_selesai" value="{{ $jam_selesai }}">
+                    <input type="hidden" name="total" value="{{ $total }}">
+
+                    <button type="submit" class="w-full py-3 px-4 bg-green-600 text-white font-semibold rounded-lg shadow-md hover:bg-green-700 transition duration-300 ease-in-out focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2">
+                        Lanjut ke Pembayaran
+                    </button>
+                </form>
+
+            </div>
+        </div>
+
     </div>
-
 </div>
 @endsection
