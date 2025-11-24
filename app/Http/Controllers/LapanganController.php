@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use App\Models\Lapangan;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Carbon\Carbon;
 
 class LapanganController extends Controller
@@ -154,10 +155,12 @@ class LapanganController extends Controller
 
         if (array_key_exists($id, $dummy)) {
             $lapangan = (object) $dummy[$id];
+            Log::info("Pake Dummy");
         } else {
             $lapangan = Lapangan::findOrFail($id);
             if (is_string($lapangan->fasilitas)) {
                 $lapangan->fasilitas = array_map('trim', explode(',', $lapangan->fasilitas));
+                Log::info("Pake Database");
             }
         }
 
