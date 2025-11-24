@@ -6,12 +6,13 @@
     <title>@yield('title') - Bolaga</title>
 
     @vite(['resources/css/app.css', 'resources/js/app.js'])
+    <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
 </head>
 
 <body class="bg-gray-50">
 
 <!-- NAVBAR -->
-<nav class="bg-white border-b shadow-sm">
+<nav class="bg-green-600 border-b shadow-sm text-white">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="flex justify-between items-center h-16">
 
@@ -31,19 +32,19 @@
 
                 <!-- Riwayat -->
                 <a href="{{ route('penyewa.booking') }}"
-                   class="text-gray-700 hover:text-blue-600 {{ request()->routeIs('penyewa.booking') ? 'font-semibold text-blue-600' : '' }}">
+                   class="text-white hover:bg-green-700 px-3 py-2 rounded-lg {{ request()->routeIs('penyewa.booking') ? 'font-semibold text-blue-600' : '' }}">
                     Riwayat
                 </a>
 
                 <!-- Beranda -->
                 <a href="{{ route('penyewa.dashboard') }}"
-                   class="text-gray-700 hover:text-blue-600 {{ request()->routeIs('penyewa.dashboard') ? 'font-semibold text-blue-600' : '' }}">
+                   class="text-white hover:bg-green-700 px-3 py-2 rounded-lg {{ request()->routeIs('penyewa.dashboard') ? 'font-semibold text-blue-600' : '' }}">
                     Beranda
                 </a>
 
                 <!-- Kategori -->
                 <a href="#kategori" 
-                   class="text-gray-700 hover:text-blue-600">
+                   class="text-white hover:bg-green-700 px-3 py-2 rounded-lg">
                     Kategori
                 </a>
 
@@ -81,17 +82,17 @@
         <div id="mobileMenu" class="md:hidden hidden pb-4 space-y-2">
 
             <a href="{{ route('penyewa.booking') }}"
-               class="block px-2 py-2 text-gray-700 hover:text-blue-600 {{ request()->routeIs('penyewa.booking') ? 'font-semibold text-blue-600' : '' }}">
+               class="block px-2 py-2 text-white hover:bg-green-700 px-3 py-2 rounded-lg {{ request()->routeIs('penyewa.booking') ? 'font-semibold text-blue-600' : '' }}">
                 Riwayat
             </a>
 
             <a href="{{ route('penyewa.dashboard') }}"
-               class="block px-2 py-2 text-gray-700 hover:text-blue-600 {{ request()->routeIs('penyewa.dashboard') ? 'font-semibold text-blue-600' : '' }}">
+               class="block px-2 py-2 text-white hover:bg-green-700 px-3 py-2 rounded-lg {{ request()->routeIs('penyewa.dashboard') ? 'font-semibold text-blue-600' : '' }}">
                 Beranda
             </a>
 
             <a href="#kategori"
-               class="block px-2 py-2 text-gray-700 hover:text-blue-600">
+               class="block px-2 py-2 text-white hover:bg-green-700 px-3 py-2 rounded-lg">
                 Kategori
             </a>
 
