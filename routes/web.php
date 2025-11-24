@@ -46,11 +46,16 @@ Route::middleware('auth')->group(function () {
     Route::get('/penyewa/lapangan/{id}', [LapanganController::class, 'detail'])
         ->name('penyewa.lapangan.detail');
 
-    Route::get('/penyewa/booking/konfirmasi', [LapanganController::class, 'konfirmasi'])
-        ->name('penyewa.booking.konfirmasi');
+    Route::get(
+        '/penyewa/booking/konfirmasi/{lapangan_id}', 
+         [LapanganController::class, 'konfirmasi']
+    )->name('penyewa.booking.konfirmasi');
 
-    Route::post('/penyewa/booking/pembayaran', [LapanganController::class, 'pembayaran'])
-        ->name('penyewa.booking.pembayaran');
+
+    Route::post('/penyewa/booking/pembayaran', 
+        [LapanganController::class, 'pembayaran']
+    )->name('penyewa.booking.pembayaran');
+
 
 
     // ================================

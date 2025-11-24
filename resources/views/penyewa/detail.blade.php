@@ -29,7 +29,7 @@
 
                 <h2 class="text-2xl font-bold mb-4">Form Booking</h2>
 
-                <form action="{{ route('penyewa.booking.konfirmasi') }}" method="GET">
+                <form action="{{ route('penyewa.booking.konfirmasi', ['lapangan_id' => $lapangan->lapangan_id]) }}" method="GET">
 
                     <!-- Hidden Lapangan ID -->
                     <input type="hidden" name="lapangan_id" value="{{ $lapangan->lapangan_id }}">
@@ -73,12 +73,11 @@
                     </div>
 
                     <!-- Harga -->
-                    <div class="bg-gray-50 p-4 rounded-lg border">
+                    <div class="bg-gray-50 p-4 rounded-lg border mb-5">
                         <div class="flex justify-between mb-1">
                             <span>Harga Per 2 jam</span>
                             <span>Rp{{ number_format($lapangan->harga_perjam,0,',','.') }}</span>
                         </div>
-
                         <div class="flex justify-between mb-1">
                             <span>Admin</span>
                             <span>Rp5.000</span>
@@ -96,8 +95,10 @@
 
                     <!-- Button -->
                     <button type="submit"
-                            class="w-full mt-5 bg-green-600 text-white py-3 rounded-lg font-semibold hover:bg-green-700">
-                        Lanjut ke Konfirmasi Booking
+                        class="w-full py-3 px-4 bg-green-600 text-white font-semibold rounded-lg 
+                        shadow-md hover:bg-green-700 transition duration-300 ease-in-out 
+                        focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2">
+                         Lanjut ke Konfirmasi Booking
                     </button>
 
                 </form>

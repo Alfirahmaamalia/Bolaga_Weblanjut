@@ -71,8 +71,9 @@
 
 
                 {{-- Form Pembayaran --}}
-                <form action="{{ route('penyewa.booking.pembayaran') }}" method="POST" class="mt-8">
-                    @csrf
+                <form action="{{ route('penyewa.booking.pembayaran') }}" method="POST">
+                 @csrf
+
 
                     {{-- Hidden Input --}}
                     <input type="hidden" name="lapangan_id" value="{{ $lapangan->lapangan_id }}">

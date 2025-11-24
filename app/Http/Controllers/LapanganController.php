@@ -310,7 +310,6 @@ class LapanganController extends Controller
                 'fasilitas' => ['Parkir', 'Toilet', 'Kantin'],
                 'aktif' => true,
             ],
-            // ... (lanjutkan dummy data 3, 5, 6 di sini jika ada)
         ];
 
         if (array_key_exists($r->lapangan_id, $dummy)) {
