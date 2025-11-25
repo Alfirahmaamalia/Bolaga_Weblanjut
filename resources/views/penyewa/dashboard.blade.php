@@ -115,7 +115,7 @@
                         <span class="text-sm text-gray-600">/jam</span>
                     </p>
 
-                    <a href="{{ route('penyewa.lapangan.detail', $item['id']) }}"
+                    <a href="{{ route('penyewa.lapangan.detail', $item['lapangan_id']) }}"
                        class="px-4 py-2 bg-green-600 text-white rounded-full text-xs hover:bg-green-700">
                         Booking
                     </a>

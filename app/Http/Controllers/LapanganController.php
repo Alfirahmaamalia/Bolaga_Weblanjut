@@ -36,7 +36,7 @@ class LapanganController extends Controller
     public function detail($id)
     {
         // Ambil dari database
-        $lapangan = Lapangan::findOrFail($id);
+        $lapangan = Lapangan::where('lapangan_id', $id)->firstOrFail();
 
         // Jika fasilitas disimpan sebagai string JSON → decode
         if (is_string($lapangan->fasilitas)) {
@@ -94,7 +94,7 @@ class LapanganController extends Controller
     public function update(Request $request, $id)
     {
         // Mencari berdasarkan kolom 'id' (Primary Key)
-        $lap = Lapangan::where('id', $id)->where('penyedia_id', auth()->id())->firstOrFail();
+        $lap = Lapangan::where('lapangan_id', $id)->where('penyedia_id', auth()->id())->firstOrFail();
 
         $v = $request->validate([
             'nama_lapangan' => 'required|string|max:255',
@@ -123,7 +123,7 @@ class LapanganController extends Controller
     public function destroy($id)
     {
         // Mencari berdasarkan kolom 'id' (Primary Key)
-        $lap = Lapangan::where('id', $id)->where('penyedia_id', auth()->id())->firstOrFail();
+        $lap = Lapangan::where('lapangan_id', $id)->where('penyedia_id', auth()->id())->firstOrFail();
 
         if ($lap->foto && Storage::disk('public')->exists($lap->foto)) {
             Storage::disk('public')->delete($lap->foto);
@@ -140,13 +140,20 @@ class LapanganController extends Controller
     // =====================================================
     public function cekSlot(Request $r)
     {
+        if (!$r->tanggal || !$r->jam) {
+            return response()->json(['available' => true]); // belum memilih lengkap
+        }
+
+        $jam = is_array($r->jam) ? $r->jam : [$r->jam];
+
         $ada = DB::table('booking')
             ->where('lapangan_id', $r->lapangan_id)
             ->where('tanggal', $r->tanggal)
-            ->where(function ($q) use ($r) {
-                $q->whereBetween('jam_mulai', [$r->jam_mulai, $r->jam_selesai])
-                  ->orWhereBetween('jam_selesai', [$r->jam_mulai, $r->jam_selesai]);
-            })
+            ->whereJsonContains('jam', $jam)
+            // ->where(function ($q) use ($r) {
+            //     $q->whereBetween('jam_mulai', [$r->jam_mulai, $r->jam_selesai])
+            //       ->orWhereBetween('jam_selesai', [$r->jam_mulai, $r->jam_selesai]);
+            // })
             ->exists();
 
         return response()->json([

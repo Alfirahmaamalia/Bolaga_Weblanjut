@@ -10,7 +10,7 @@ class Lapangan extends Model
     use HasFactory;
 
     protected $table = 'lapangan';
-    protected $primaryKey = 'id'; 
+    protected $primaryKey = 'lapangan_id'; 
     public $incrementing = true;
     protected $keyType = 'int';
 

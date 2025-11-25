@@ -3,6 +3,7 @@
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Facades\DB;
 
 return new class extends Migration
 {
@@ -13,15 +14,18 @@ return new class extends Migration
     {
        Schema::create('booking', function (Blueprint $table) {
         $table->id('booking_id');
-        $table->foreignId('lapangan_id')->constrained('lapangan', 'id')->cascadeOnDelete();
+        $table->foreignId('lapangan_id')->constrained('lapangan', 'lapangan_id')->cascadeOnDelete();
         $table->foreignId('penyewa_id')->constrained('users', 'user_id')->cascadeOnDelete();
         $table->date('tanggal');
-        $table->time('jam_mulai');
-        $table->time('jam_selesai');
+        // $table->time('jam_mulai');
+        // $table->time('jam_selesai');
         $table->integer('total_harga');
         $table->string('status');
         $table->timestamps();
         });
+
+        // Tambah kolom jam
+        DB::statement('ALTER TABLE booking ADD COLUMN jam TIME[];');
     }
 
     /**
