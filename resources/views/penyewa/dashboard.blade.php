@@ -22,6 +22,7 @@
                 <select class="w-full rounded-lg p-2 bg-gray-100 focus:bg-white focus:ring-2 focus:ring-gray-400">
                     <option>Semua</option>
                     <option>Futsal</option>
+                    <option>Sepak Bola</option>
                     <option>Badminton</option>
                     <option>Basket</option>
                     <option>Voli</option>
@@ -73,7 +74,7 @@
         @foreach($items as $item)
         <div class="bg-white rounded-xl shadow-md overflow-hidden transition hover:shadow-lg">
 
-            <img src="{{ $item['gambar'] }}"
+            <img src="{{ asset($item['foto']) }}"
                  class="w-full h-48 object-cover"
                  onerror="this.src='https://picsum.photos/600/400?random={{ rand(1,9999) }}'">
 
@@ -82,17 +83,21 @@
                 <!-- Jenis + Rating -->
                 <div class="flex justify-between items-center mb-2">
                     <span class="px-3 py-1 bg-yellow-100 text-yellow-700 rounded-lg text-xs font-semibold">
-                        {{ $item['jenis'] }}
+                        {{ $item['jenis_olahraga'] }}
                     </span>
                     <span class="text-yellow-500 text-sm flex items-center gap-1">
                         ★ 4.7
                     </span>
                 </div>
 
-                <h3 class="font-bold text-lg mb-1">{{ $item['nama'] }}</h3>
+                <h3 class="font-bold text-lg mb-1">{{ $item['nama_lapangan'] }}</h3>
 
                 <p class="text-gray-600 text-sm mb-2 flex items-center gap-1">
                     📍 {{ $item['lokasi'] }}
+                </p>
+
+                <p class="text-gray-600 text-sm mb-2 flex items-center gap-1">
+                    {{ $item['deskripsi'] }}
                 </p>
 
                 <p class="text-sm text-gray-600 mb-1">Fasilitas:</p>
@@ -106,7 +111,7 @@
 
                 <div class="flex justify-between items-center">
                     <p class="font-bold">
-                        Rp{{ number_format($item['harga'],0,',','.') }}
+                        Rp{{ number_format($item['harga_perjam'],0,',','.') }}
                         <span class="text-sm text-gray-600">/jam</span>
                     </p>
 

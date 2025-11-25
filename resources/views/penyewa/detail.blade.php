@@ -29,18 +29,25 @@
 
                 <h2 class="text-2xl font-bold mb-4">Form Booking</h2>
 
-                <form action="{{ route('penyewa.booking.konfirmasi', ['lapangan_id' => $lapangan->lapangan_id]) }}" method="GET">
+                <form action="{{ route('penyewa.booking.konfirmasi', ['lapangan_id' => $lapangan->id]) }}" method="GET">
 
                     <!-- Hidden Lapangan ID -->
-                    <input type="hidden" name="lapangan_id" value="{{ $lapangan->lapangan_id }}">
+                    <input type="hidden" name="lapangan_id" value="{{ $lapangan->id }}">
 
                     <!-- Nama Lapangan -->
                     <div class="mb-4">
                         <label class="font-semibold">Lapangan</label>
-                        <input type="text"
-                               value="{{ $lapangan->nama_lapangan }}"
-                               class="w-full p-2 rounded-lg bg-gray-100"
-                               readonly>
+                        <p class="w-full p-2 rounded-lg bg-gray-100">
+                            {{ $lapangan->nama_lapangan }}
+                        </p>
+                    </div>
+
+                    <!-- Lokasi Lapangan -->
+                    <div class="mb-4">
+                        <label class="font-semibold">Lokasi</label>
+                        <p class="w-full p-2 rounded-lg bg-gray-100">
+                            📍 {{ $lapangan->lokasi }}
+                        </p>
                     </div>
 
                     <!-- Tanggal -->
@@ -75,7 +82,7 @@
                     <!-- Harga -->
                     <div class="bg-gray-50 p-4 rounded-lg border mb-5">
                         <div class="flex justify-between mb-1">
-                            <span>Harga Per 2 jam</span>
+                            <span>Harga Per jam</span>
                             <span>Rp{{ number_format($lapangan->harga_perjam,0,',','.') }}</span>
                         </div>
                         <div class="flex justify-between mb-1">
