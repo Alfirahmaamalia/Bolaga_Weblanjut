@@ -15,15 +15,52 @@ class UserSeeder extends Seeder
     public function run(): void
     {
         User::create([
-            'name' => 'Admin Utama',
-            'email' => 'admin@bolaga.com',
-            'password' => Hash::make('password123'),
+            'name' => 'Penyedia',
+            'email' => 'penyedia@bolaga.com',
+            'password' => Hash::make('penyedia123'),
+            'role' => 'penyedia',
         ]);
-
+        
         User::create([
-            'name' => 'Customer Pertama',
-            'email' => 'customer@bolaga.com',
-            'password' => Hash::make('password123'),
+            'name' => 'Penyedia2',
+            'email' => 'penyedia2@bolaga.com',
+            'password' => Hash::make('penyedia123'),
+            'role' => 'penyedia',
+        ]);
+        
+        User::create([
+            'name' => 'Penyedia3',
+            'email' => 'penyedia3@bolaga.com',
+            'password' => Hash::make('penyedia123'),
+            'role' => 'penyedia',
+        ]);
+        
+        User::create([
+            'name' => 'Penyedia4',
+            'email' => 'penyedia4@bolaga.com',
+            'password' => Hash::make('penyedia123'),
+            'role' => 'penyedia',
+        ]);
+        
+        User::create([
+            'name' => 'Penyedia5',
+            'email' => 'penyedia5@bolaga.com',
+            'password' => Hash::make('penyedia123'),
+            'role' => 'penyedia',
+        ]);
+        
+        User::create([
+            'name' => 'Penyedia6',
+            'email' => 'penyedia6@bolaga.com',
+            'password' => Hash::make('penyedia123'),
+            'role' => 'penyedia',
+        ]);
+        
+        User::create([
+            'name' => 'Penyewa',
+            'email' => 'penyewa@bolaga.com',
+            'password' => Hash::make('penyewa123'),
+            'role' => 'penyewa',
         ]);
     }
 }
