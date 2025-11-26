@@ -61,8 +61,11 @@ Route::middleware('auth')->group(function () {
     // ================================
     // 🔥 Cek Slot Booking — Baru Ditambah
     // ================================
-    Route::post('/penyewa/cek-slot', [LapanganController::class, 'cekSlot'])
+    Route::get('/penyewa/cek-slot', [LapanganController::class, 'cekSlot'])
         ->name('penyewa.cekSlot');
+    
+    // Route::post('/penyewa/cek-slot', [LapanganController::class, 'cekSlot'])
+    //     ->name('penyewa.cekSlot');
 
     // DASHBOARD Penyedia
     Route::get('/penyedia/dashboard', function () {

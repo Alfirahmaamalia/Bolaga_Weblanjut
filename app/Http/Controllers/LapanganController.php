@@ -140,6 +140,7 @@ class LapanganController extends Controller
     // =====================================================
     public function cekSlot(Request $r)
     {
+        // echo "<script>alert('cek slot controller terpanggil');</script>";
         if (!$r->tanggal || !$r->jam) {
             return response()->json(['available' => true]); // belum memilih lengkap
         }
@@ -149,11 +150,12 @@ class LapanganController extends Controller
         $ada = DB::table('booking')
             ->where('lapangan_id', $r->lapangan_id)
             ->where('tanggal', $r->tanggal)
-            ->whereJsonContains('jam', $jam)
-            // ->where(function ($q) use ($r) {
-            //     $q->whereBetween('jam_mulai', [$r->jam_mulai, $r->jam_selesai])
-            //       ->orWhereBetween('jam_selesai', [$r->jam_mulai, $r->jam_selesai]);
-            // })
+            // ->whereJsonContains('jam', $jam)
+            ->where(function ($q) use ($jam) {
+                foreach ($jam as $j) {
+                    $q->orWhereRaw('? = ANY(jam)', [$j]);
+                }
+            })
             ->exists();
 
         return response()->json([

@@ -92,22 +92,26 @@
                         <!-- Tempat munculnya pilihan jam -->
                         <div id="jamTerpilih" class="mt-3 flex flex-wrap gap-2"></div>
                     </div>
-
+                    
                     <!-- Hidden input untuk dikirim -->
                     <div id="jamInputs"></div>
 
                     <!-- Status -->
                     @php $isBooked = $isBooked ?? false; @endphp
                     <div class="mb-4">
-                        <span id="status-lapangan" class="bg-green-100 text-green-700 px-3 py-1 rounded-full text-sm font-semibold">
-                            Lapangan Tersedia
+                        <span id="status-lapangan"
+                            class="{{ $isBooked ? 'bg-red-100 text-red-700' : 'bg-green-100 text-green-700' }} px-3 py-1 rounded-full text-sm font-semibold">
+                            {{ $isBooked ? 'Lapangan Tidak Tersedia' : 'Lapangan Tersedia' }}
                         </span>
+                        <!-- <span id="status-lapangan" class="bg-green-100 text-green-700 px-3 py-1 rounded-full text-sm font-semibold">
+                            Lapangan Tersedia
+                        </span> -->
                         <!-- @if($isBooked)
-                            <span class="bg-red-100 text-red-700 px-3 py-1 rounded-full text-sm font-semibold">
+                            <span id="status-lapangan" class="bg-red-100 text-red-700 px-3 py-1 rounded-full text-sm font-semibold">
                                 Lapangan Tidak Tersedia
                             </span>
                         @else
-                            <span class="bg-green-100 text-green-700 px-3 py-1 rounded-full text-sm font-semibold">
+                            <span id="status-lapangan" class="bg-green-100 text-green-700 px-3 py-1 rounded-full text-sm font-semibold">
                                 Lapangan Tersedia
                             </span>
                         @endif -->
@@ -157,6 +161,44 @@
     const jamInputs = document.getElementById("jamInputs");
     let listJam = [];
 
+    function cekSlot() {
+        const tanggalInput = document.querySelector('input[name="tanggal"]');
+        const statusBox = document.getElementById("status-lapangan");
+
+        const tanggal = tanggalInput.value;
+        const lapanganId = "{{ $lapangan->lapangan_id }}";
+        
+        if (!tanggal || listJam.length === 0) {
+            statusBox.className = "bg-green-100 text-green-700 px-3 py-1 rounded-full text-sm font-semibold";
+            statusBox.textContent = "Lapangan Tersedia";
+            return;
+        }
+        
+        const queryString = new URLSearchParams({
+            lapangan_id: lapanganId,
+            tanggal: tanggal,
+            // kirim jam[] sebagai array
+        });
+
+        listJam.forEach(j => queryString.append('jam[]', j));
+
+        fetch(`/penyewa/cek-slot?${queryString.toString()}`)
+        .then(res => res.json())
+        .then(data => {
+            if (data.available) {
+                statusBox.className = "bg-green-100 text-green-700 px-3 py-1 rounded-full text-sm font-semibold";
+                statusBox.textContent = "Lapangan Tersedia";
+            } else {
+                statusBox.className = "bg-red-100 text-red-700 px-3 py-1 rounded-full text-sm font-semibold";
+                statusBox.textContent = "Lapangan Tidak Tersedia";
+            }
+        })
+        .catch(err => {
+            console.error("Fetch error:", err);
+            alert("Fetch error! Lihat console");
+        });
+    }
+
     function updateTotal() {
         const totalJam = listJam.length;
         const hargaPerJam = {{ $lapangan->harga_perjam }};
@@ -165,6 +207,8 @@
         document.getElementById("totalJam").textContent = totalJam;
         const totalHarga = hargaPerJam * totalJam + adminFee;
         document.getElementById("totalHarga").textContent = 'Rp' + totalHarga.toLocaleString('id-ID');
+
+        cekSlot();
     }
 
     dropdown.addEventListener("change", function () {
@@ -203,31 +247,11 @@
 
     document.addEventListener("DOMContentLoaded", function () {
         const tanggalInput = document.querySelector('input[name="tanggal"]');
-        const jamInput = document.querySelector('select[name="jam"]');
+        const jamInput = document.querySelector('select[name="jamDropdown"]');
         const statusBox = document.getElementById("status-lapangan");
 
-        function cekKetersediaan() {
-            const tanggal = tanggalInput.value;
-            const jam = jamInput.value;
-            const lapanganId = "{{ $lapangan->lapangan_id }}";
-
-            if (!tanggal || !jam) return;
-
-            fetch(`/cek-ketersediaan?lapangan_id=${lapanganId}&tanggal=${tanggal}&jam=${jam}`)
-                .then(res => res.json())
-                .then(data => {
-                    if (data.available) {
-                        statusBox.className = "bg-green-100 text-green-700 px-3 py-1 rounded-full text-sm font-semibold";
-                        statusBox.textContent = "Lapangan Tersedia";
-                    } else {
-                        statusBox.className = "bg-red-100 text-red-700 px-3 py-1 rounded-full text-sm font-semibold";
-                        statusBox.textContent = "Lapangan Tidak Tersedia";
-                    }
-                });
-        }
-
-        tanggalInput.addEventListener("change", cekKetersediaan);
-        jamInput.addEventListener("change", cekKetersediaan);
+        tanggalInput.addEventListener("change", cekSlot);
+        jamInput.addEventListener("change", cekSlot);
     });
 </script>
 @endsection
