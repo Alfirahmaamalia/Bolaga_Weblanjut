@@ -37,8 +37,14 @@
                         <span class="font-semibold text-gray-900">{{ \Carbon\Carbon::parse($tanggal)->format('d M Y') }}</span>
                     </div>
                     <div class="flex justify-between">
-                        <span class="font-medium">Jam (Durasi):</span>
-                        <span class="font-semibold text-gray-900">{{ $jam_mulai }} - {{ $jam_selesai }} ({{ $jam }} Jam)</span>
+                        <span class="font-medium">Jam:</span>
+                        <span class="font-semibold text-gray-900">
+                            {{ implode(', ', $jam) }}
+                        </span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span class="font-medium">Durasi:</span>
+                        <span class="font-semibold text-gray-900">{{ $durasi }} Jam</span>
                     </div>
                 </div>
 
@@ -52,8 +58,8 @@
                         <span>Rp{{ number_format($lapangan->harga_perjam, 0, ',', '.') }}</span>
                     </div>
                     <div class="flex justify-between">
-                        <span>Subtotal ({{ $jam }} Jam)</span>
-                        <span>Rp{{ number_format($lapangan->harga_perjam * $jam, 0, ',', '.') }}</span>
+                        <span>Subtotal ({{ $durasi }} Jam)</span>
+                        <span>Rp{{ number_format($lapangan->harga_perjam * $durasi, 0, ',', '.') }}</span>
                     </div>
                     <div class="flex justify-between">
                         <span>Biaya Admin</span>
@@ -71,20 +77,24 @@
 
 
                 {{-- Form Pembayaran --}}
-                <form action="{{ route('penyewa.booking.pembayaran') }}" method="POST">
+                <form action="{{ route('penyewa.booking.simpan') }}" method="POST">
                  @csrf
 
 
                     {{-- Hidden Input --}}
                     <input type="hidden" name="lapangan_id" value="{{ $lapangan->lapangan_id }}">
                     <input type="hidden" name="tanggal" value="{{ $tanggal }}">
-                    <input type="hidden" name="jam" value="{{ $jam }}">
-                    <input type="hidden" name="jam_mulai" value="{{ $jam_mulai }}">
-                    <input type="hidden" name="jam_selesai" value="{{ $jam_selesai }}">
+                    @foreach ($jam as $j)
+                        <input type="hidden" name="jam[]" value="{{ $j }}">
+                    @endforeach
                     <input type="hidden" name="total" value="{{ $total }}">
 
+                    <p class="text-sm text-red-500 mb-2">
+                        Pastikan data sudah benar
+                    </p>
+
                     <button type="submit" class="w-full py-3 px-4 bg-green-600 text-white font-semibold rounded-lg shadow-md hover:bg-green-700 transition duration-300 ease-in-out focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2">
-                        Lanjut ke Pembayaran
+                        Konfirmasi dan Lanjut Pembayaran
                     </button>
                 </form>
 

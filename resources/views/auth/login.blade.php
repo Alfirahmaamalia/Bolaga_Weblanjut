@@ -6,7 +6,7 @@
     <title>Masuk - Bolaga</title>
     <style>
         :root {
-            --bg-image: url('{{ asset('images/lapangan.jpg') }}');
+            --bg-image: url('{{ asset('images/volly.jpg') }}');
         }
     </style>
     @vite(['resources/css/app.css', 'resources/js/app.js'])

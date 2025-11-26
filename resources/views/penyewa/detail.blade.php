@@ -59,18 +59,6 @@
                                required>
                     </div>
 
-                    <!-- Jam -->
-                    <!-- <div class="mb-4">
-                        <label class="font-semibold">Jam</label>
-                        <select name="jam"
-                                class="w-full p-2 rounded-lg border"
-                                required>
-                            <option value="08:00 - 10:00">08.00 - 10.00</option>
-                            <option value="10:00 - 12:00">10.00 - 12.00</option>
-                            <option value="13:00 - 15:00">13.00 - 15.00</option>
-                            <option value="16:00 - 18:00">16.00 - 18.00</option>
-                        </select>
-                    </div> -->
                     <div class="mb-4">
                         <label class="font-semibold">Pilih Jam</label>
 
@@ -135,7 +123,6 @@
                         focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2">
                          Lanjut ke Konfirmasi Booking
                     </button>
-
                 </form>
             </div>
         </div>
@@ -218,7 +205,7 @@
 
     dropdown.addEventListener("change", function () {
         const jam = this.value;
-        if (!jam || listJam.includes(jam)) return;
+        if (!jam || listJam.includes(jam)) return this.value = "";
 
         listJam.push(jam);
 

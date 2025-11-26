@@ -17,9 +17,8 @@ return new class extends Migration
         $table->foreignId('lapangan_id')->constrained('lapangan', 'lapangan_id')->cascadeOnDelete();
         $table->foreignId('penyewa_id')->constrained('users', 'user_id')->cascadeOnDelete();
         $table->date('tanggal');
-        // $table->time('jam_mulai');
-        // $table->time('jam_selesai');
         $table->integer('total_harga');
+        $table->string('metode_pembayaran')->nullable();
         $table->string('status');
         $table->timestamps();
         });

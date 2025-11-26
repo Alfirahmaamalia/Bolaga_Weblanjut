@@ -7,20 +7,81 @@ use App\Models\Booking;
 
 class BookingController extends Controller
 {
-    public function cekSlot(Request $request, $id)
+    public function konfirmasi(Request $r)
     {
-        $tanggal = $request->tanggal;    
-        $jam = $request->jam;             
+        // GUARD CLAUSE: Pastikan parameter esensial ada
+        if (!$r->filled(['lapangan_id', 'tanggal', 'jam'])) {
+            return redirect()->route('penyewa.dashboard')
+            ->withErrors('Booking dibatalkan. Harap pilih lapangan, tanggal, dan jam yang valid.');
+        }
 
-        $lapangan = Lapangan::findOrFail($id);
+        // Ambil data lapangan dari database
+        $lapangan = Lapangan::findOrFail($r->lapangan_id);
 
-        // cek apakah jam & tanggal bentrok booking
-        $isBooked = Booking::where('lapangan_id', $id)
-            ->where('tanggal', $tanggal)
-            ->whereIn('status', ['belum bayar', 'berhasil']) // dianggap memblokir lapangan
-            ->whereJsonContains('jam', $jam) // cek array jam
-            ->exists();
+        // Pastikan jam diterima sebagai array
+        $jam_array = (array) $r->jam;
 
-        return view('penyewa.detail', compact('lapangan', 'isBooked'));
+        // Hitung durasi penyewaan dari jumlah jam
+        $durasi_jam = count($jam_array);
+        if ($durasi_jam <= 0) $durasi_jam = 1; // default minimal 1 jam
+
+        // Hitung total (harga per jam × durasi + admin)
+        $admin = 5000;
+        $harga_total = $lapangan->harga_perjam * $durasi_jam;
+        $total = $harga_total + $admin;
+
+        return view('penyewa.konfirmasi', [
+            'lapangan' => $lapangan,
+            'tanggal'  => $r->tanggal,
+            'jam' => $jam_array,
+            'durasi' => $durasi_jam,
+            'admin' => $admin,
+            'total' => $total
+        ]);
+    }
+
+    public function simpanBooking(Request $request)
+    {
+        $booking = new Booking();
+        $booking->lapangan_id = $request->lapangan_id;
+        $booking->penyewa_id = auth()->id(); // user yang login
+        $booking->tanggal = $request->tanggal;
+        $booking->jam = $request->jam; // array time
+        $booking->total_harga = $request->total;
+        $booking->metode_pembayaran = $request->metode_pembayaran;
+        $booking->status = 'belum bayar';
+        $booking->save();
+        // dd($booking->jam);
+        return redirect()->route('penyewa.booking.pembayaran', ['booking' => $booking->booking_id])
+            ->with('success', 'Booking berhasil dibuat. Silakan lanjut ke pembayaran.');
+    }
+
+    public function pembayaran(Booking $booking)
+    {
+        $lapangan = Lapangan::findOrFail($booking->lapangan_id);
+        $jam = (array) $booking->jam;
+        $durasi = count($jam);
+        $admin = 5000;
+        $harga_total = $lapangan->harga_perjam * $durasi;
+        $total = $harga_total + $admin;
+        
+        return view('penyewa.pembayaran', [
+            'booking' => $booking,
+            'lapangan' => $lapangan,
+            'tanggal' => $booking->tanggal,
+            'jam' => $jam,
+            'durasi' => $durasi,
+            'total' => $total,
+            'admin' => $admin,
+        ]);
+    }
+
+    public function konfirmasiPembayaran(Request $request, Booking $booking)
+    {
+        $booking->status = 'berhasil';
+        $booking->metode_pembayaran = $request->metode_pembayaran;
+        $booking->save();
+
+        return redirect()->route('penyewa.dashboard')->with('success', 'Pembayaran berhasil. Booking Anda telah dikonfirmasi.');
     }
 }

@@ -4,6 +4,7 @@ use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\LapanganController;
+use App\Http\Controllers\BookingController;
 use App\Http\Controllers\SocialAuthController;
 use App\Models\User;
 use Laravel\Socialite\Facades\Socialite;
@@ -46,16 +47,26 @@ Route::middleware('auth')->group(function () {
     Route::get('/penyewa/lapangan/{id}', [LapanganController::class, 'detail'])
         ->name('penyewa.lapangan.detail');
 
+    // konfirmasi booking
     Route::get(
         '/penyewa/booking/konfirmasi/{lapangan_id}', 
-         [LapanganController::class, 'konfirmasi']
+         [BookingController::class, 'konfirmasi']
     )->name('penyewa.booking.konfirmasi');
+    
+    // simpan database booking
+    Route::post('/penyewa/booking/simpan', 
+        [BookingController::class, 'simpanBooking']
+    )->name('penyewa.booking.simpan');
 
-
-    Route::post('/penyewa/booking/pembayaran', 
-        [LapanganController::class, 'pembayaran']
+    // pembayaran
+    Route::get('/penyewa/booking/pembayaran/{booking}', 
+        [BookingController::class, 'pembayaran']
     )->name('penyewa.booking.pembayaran');
 
+    // konfirmasi pembayaran
+    Route::post('/penyewa/booking/konfirmasi-pembayaran/{booking}', 
+        [BookingController::class, 'konfirmasiPembayaran']
+    )->name('penyewa.booking.konfirmasi-pembayaran');
 
 
     // ================================

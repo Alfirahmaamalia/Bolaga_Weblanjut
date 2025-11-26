@@ -18,11 +18,12 @@ class booking extends Model
         'tanggal',
         'jam',
         'total_harga',
+        'metode_pembayaran',
         'status',
     ];
 
     protected $casts = [
-        'jam' => 'array',
+        // 'jam' => 'array',
         'tanggal' => 'date',
     ];
 
@@ -34,6 +35,14 @@ class booking extends Model
         } else {
             $this->attributes['jam'] = $value;
         }
+    }
+
+    public function getJamAttribute($value)
+    {
+        if ($value === null) return null;
+
+        // Mengubah "{08:00,09:00}" menjadi ["08:00", "09:00"]
+        return str_getcsv(trim($value, '{}'));
     }
 
     // Relasi ke lapangan
