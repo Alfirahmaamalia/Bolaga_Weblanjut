@@ -103,18 +103,6 @@
                             class="{{ $isBooked ? 'bg-red-100 text-red-700' : 'bg-green-100 text-green-700' }} px-3 py-1 rounded-full text-sm font-semibold">
                             {{ $isBooked ? 'Lapangan Tidak Tersedia' : 'Lapangan Tersedia' }}
                         </span>
-                        <!-- <span id="status-lapangan" class="bg-green-100 text-green-700 px-3 py-1 rounded-full text-sm font-semibold">
-                            Lapangan Tersedia
-                        </span> -->
-                        <!-- @if($isBooked)
-                            <span id="status-lapangan" class="bg-red-100 text-red-700 px-3 py-1 rounded-full text-sm font-semibold">
-                                Lapangan Tidak Tersedia
-                            </span>
-                        @else
-                            <span id="status-lapangan" class="bg-green-100 text-green-700 px-3 py-1 rounded-full text-sm font-semibold">
-                                Lapangan Tersedia
-                            </span>
-                        @endif -->
                     </div>
 
                     <!-- Harga -->
@@ -159,7 +147,9 @@
     const dropdown = document.getElementById("jamDropdown");
     const container = document.getElementById("jamTerpilih");
     const jamInputs = document.getElementById("jamInputs");
+    // const submitBtn = document.querySelector('form button[type="submit"]');
     let listJam = [];
+    let submitBtn;
 
     function cekSlot() {
         const tanggalInput = document.querySelector('input[name="tanggal"]');
@@ -171,6 +161,11 @@
         if (!tanggal || listJam.length === 0) {
             statusBox.className = "bg-green-100 text-green-700 px-3 py-1 rounded-full text-sm font-semibold";
             statusBox.textContent = "Lapangan Tersedia";
+
+            // tombol aktif
+            submitBtn.disabled = false;
+            submitBtn.classList.remove('bg-gray-400', 'cursor-not-allowed');
+            submitBtn.classList.add('bg-green-600', 'hover:bg-green-700');
             return;
         }
         
@@ -188,9 +183,19 @@
             if (data.available) {
                 statusBox.className = "bg-green-100 text-green-700 px-3 py-1 rounded-full text-sm font-semibold";
                 statusBox.textContent = "Lapangan Tersedia";
+            
+                // tombol aktif
+                submitBtn.disabled = false;
+                submitBtn.classList.remove('bg-gray-400', 'cursor-not-allowed');
+                submitBtn.classList.add('bg-green-600', 'hover:bg-green-700');
             } else {
                 statusBox.className = "bg-red-100 text-red-700 px-3 py-1 rounded-full text-sm font-semibold";
                 statusBox.textContent = "Lapangan Tidak Tersedia";
+            
+                // tombol nonaktif
+                submitBtn.disabled = true;
+                submitBtn.classList.remove('bg-green-600', 'hover:bg-green-700');
+                submitBtn.classList.add('bg-gray-400', 'cursor-not-allowed');
             }
         })
         .catch(err => {
@@ -200,7 +205,7 @@
     }
 
     function updateTotal() {
-        const totalJam = listJam.length;
+        const totalJam = listJam.length > 0 ? listJam.length : 1; // default 1 jika kosong
         const hargaPerJam = {{ $lapangan->harga_perjam }};
         const adminFee = 5000;
 
@@ -235,6 +240,8 @@
         jamInputs.appendChild(input);
 
         updateTotal();
+
+        this.value = "";
     });
 
     function removeJam(jam, btn) {
@@ -247,11 +254,14 @@
 
     document.addEventListener("DOMContentLoaded", function () {
         const tanggalInput = document.querySelector('input[name="tanggal"]');
-        const jamInput = document.querySelector('select[name="jamDropdown"]');
+        const jamInput = document.getElementById('jamDropdown');
         const statusBox = document.getElementById("status-lapangan");
+        submitBtn = document.querySelector('form button[type="submit"]');
 
         tanggalInput.addEventListener("change", cekSlot);
         jamInput.addEventListener("change", cekSlot);
+
+        updateTotal();
     });
 </script>
 @endsection
