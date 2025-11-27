@@ -14,54 +14,53 @@
 
     <!-- FILTER BAR -->
     <section class="bg-white rounded-xl p-6 shadow-md mb-10">
-        <form method="GET" class="grid md:grid-cols-4 gap-6">
+        <form method="GET" action="{{ route('penyewa.dashboard') }}" class="grid md:grid-cols-4 gap-6">
 
             <!-- Jenis Olahraga -->
             <div>
                 <label class="block font-semibold mb-1">Jenis Olahraga</label>
-                <select class="w-full rounded-lg p-2 bg-gray-100 focus:bg-white focus:ring-2 focus:ring-gray-400">
-                    <option>Semua</option>
-                    <option>Futsal</option>
-                    <option>Sepak Bola</option>
-                    <option>Badminton</option>
-                    <option>Basket</option>
-                    <option>Voli</option>
-                    <option>Tenis</option>
+                <select name="jenis" class="w-full rounded-lg p-2 bg-gray-100">
+                    <option value="">Semua</option>
+                    <option value="Futsal" {{ request('jenis')=='Futsal'?'selected':'' }}>Futsal</option>
+                    <option value="Sepak Bola" {{ request('jenis')=='Sepak Bola'?'selected':'' }}>Sepak Bola</option>
+                    <option value="Badminton" {{ request('jenis')=='Badminton'?'selected':'' }}>Badminton</option>
+                    <option value="Basket" {{ request('jenis')=='Basket'?'selected':'' }}>Basket</option>
+                    <option value="Voli" {{ request('jenis')=='Voli'?'selected':'' }}>Voli</option>
+                    <option value="Tenis" {{ request('jenis')=='Tenis'?'selected':'' }}>Tenis</option>
                 </select>
             </div>
 
             <!-- Lokasi -->
             <div>
                 <label class="block font-semibold mb-1">Lokasi</label>
-                <select class="w-full rounded-lg p-2 bg-gray-100 focus:bg-white focus:ring-2 focus:ring-gray-400">
-                    <option>Semua Lokasi</option>
-                    <option>Jakarta</option>
-                    <option>Bandung</option>
-                    <option>Surabaya</option>
-                    <option>Yogyakarta</option>
+                <select name="lokasi" class="w-full rounded-lg p-2 bg-gray-100">
+                    <option value="">Semua Lokasi</option>
+                    <option value="Jakarta" {{ request('lokasi')=='Jakarta'?'selected':'' }}>Jakarta</option>
+                    <option value="Bandung" {{ request('lokasi')=='Bandung'?'selected':'' }}>Bandung</option>
+                    <option value="Surabaya" {{ request('lokasi')=='Surabaya'?'selected':'' }}>Surabaya</option>
+                    <option value="Yogyakarta" {{ request('lokasi')=='Yogyakarta'?'selected':'' }}>Yogyakarta</option>
+                    <option value="Semarang" {{ request('lokasi')=='Semarang'?'selected':'' }}>Semarang</option>
+                    <option value="Bogor" {{ request('lokasi')=='Bogor'?'selected':'' }}>Bogor</option>
+                    <option value="Lampung" {{ request('lokasi')=='Lampung'?'selected':'' }}>Lampung</option>
                 </select>
             </div>
 
             <!-- Rentang Harga -->
             <div>
                 <label class="block font-semibold mb-1">Rentang Harga</label>
-                <select class="w-full rounded-lg p-2 bg-gray-100 focus:bg-white focus:ring-2 focus:ring-gray-400">
-                    <option>Semua Harga</option>
-                    <option><= Rp100.000</option>
-                    <option>Rp100.000 - Rp250.000</option>
-                    <option>>= Rp250.000</option>
+                <select name="harga" class="w-full rounded-lg p-2 bg-gray-100">
+                    <option value="">Semua Harga</option>
+                    <option value="<=100" {{ request('harga')=='<=100'?'selected':'' }}><= Rp100.000</option>
+                    <option value="100-250" {{ request('harga')=='100-250'?'selected':'' }}>Rp100.000 - Rp250.000</option>
+                    <option value=">=250" {{ request('harga')=='>=250'?'selected':'' }}>>= Rp250.000</option>
                 </select>
             </div>
 
-            <!-- Cari -->
+            <!-- Submit -->
             <div>
                 <label class="block font-semibold mb-1">Cari</label>
-                <button class="w-full bg-gray-900 text-white py-2 rounded-lg flex items-center justify-center gap-2 hover:bg-gray-800">
+                <button class="w-full bg-gray-900 text-white py-2 rounded-lg">
                     Cari Lapangan
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                              d="M21 21l-4.35-4.35M11 18a7 7 0 100-14 7 7 0 000 14z" />
-                    </svg>
                 </button>
             </div>
 

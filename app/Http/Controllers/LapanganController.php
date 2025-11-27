@@ -13,15 +13,64 @@ class LapanganController extends Controller
     // ==========================
     // DASHBOARD PENYEWA (Dummy)
     // ==========================
-    public function dashboard()
-    {
-        // Ambil semua lapangan yang aktif
-        $items = Lapangan::where('aktif', true)->get();
+    // public function dashboard()
+    // {
+    //     // Ambil semua lapangan yang aktif
+    //     $items = Lapangan::where('aktif', true)->get();
         
-        // Jika kolom fasilitas berupa string, ubah jadi array
+    //     // Jika kolom fasilitas berupa string, ubah jadi array
+    //     foreach ($items as $i) {
+    //         if (is_string($i->fasilitas)) {
+    //             $i->fasilitas = json_decode($i->fasilitas, true);
+    //         }
+    //     }
+
+    //     return view('penyewa.dashboard', compact('items'));
+    // }
+
+    public function dashboard(Request $r)
+    {
+        $query = Lapangan::where('aktif', true);
+
+        // filter (jika ada) -- contoh singkat
+        if ($r->jenis) {
+            $query->where('jenis_olahraga', $r->jenis);
+        }
+        if ($r->lokasi) {
+            $query->where('lokasi', 'LIKE', '%' . $r->lokasi . '%');
+        }
+        if ($r->harga) {
+            if ($r->harga == '<=100') {
+                $query->where('harga_perjam', '<=', 100000);
+            } elseif ($r->harga == '100-250') {
+                $query->whereBetween('harga_perjam', [100000, 250000]);
+            } elseif ($r->harga == '>=250') {
+                $query->where('harga_perjam', '>=', 250000);
+            }
+        }
+
+        $items = $query->get();
+
+        // pastikan fasilitas jadi array (aman jika kolom berformat string JSON)
         foreach ($items as $i) {
+            // jika kosong set array kosong
+            if (is_null($i->fasilitas)) {
+                $i->fasilitas = [];
+                continue;
+            }
+
+            // jika sudah array/collection biarkan
+            if (is_array($i->fasilitas) || $i->fasilitas instanceof \Illuminate\Support\Collection) {
+                continue;
+            }
+
+            // jika string, coba decode JSON
             if (is_string($i->fasilitas)) {
-                $i->fasilitas = json_decode($i->fasilitas, true);
+                $decoded = json_decode($i->fasilitas, true);
+                $i->fasilitas = is_array($decoded) ? $decoded : [];
+            } else {
+                // fallback
+                $i->fasilitas = [];
             }
         }
 
