@@ -10,7 +10,10 @@
 
         <h3 class="text-2xl font-extrabold text-gray-900 mb-6">Pembayaran Booking</h3>
 
-        <form action="{{ route('penyewa.booking.konfirmasi-pembayaran', $booking->booking_id) }}" method="POST">
+        <form action="{{ route('penyewa.booking.konfirmasi-pembayaran', $booking->booking_id) }}" 
+            method="POST" 
+            enctype="multipart/form-data"
+        >
             @csrf
 
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -98,7 +101,7 @@
 
                     <hr class="my-4">
 
-                    <div class="flex justify-between items-center">
+                    <div class="flex justify-between items-center mb-5">
                         <span class="text-xl font-extrabold text-gray-900">TOTAL BAYAR</span>
                         <span class="text-2xl font-extrabold text-green-600">Rp{{ number_format($total, 0, ',', '.') }}</span>
                     </div>
@@ -110,10 +113,29 @@
                         <input type="hidden" name="jam[]" value="{{ $j }}">
                     @endforeach
                     <input type="hidden" name="total" value="{{ $total }}">
+                    
+                    <hr class="my-6 border-gray-300">
+
+                    {{-- input gambar bukti pembayaran --}}
+                    <div class="mt-6">
+                        <label class="block font-semibold text-gray-700 mb-2">Upload Bukti Pembayaran</label>
+
+                        <input type="file" 
+                            name="bukti_pembayaran"
+                            accept="image/*"
+                            required
+                            class="w-full p-2 border rounded-lg bg-gray-50 focus:ring-2 focus:ring-green-400" />
+                        
+                        <p class="text-xs text-gray-500 mt-1">Format: JPG, PNG (max 2MB)</p>
+                    </div>
 
                     <button type="submit" class="mt-5 w-full py-3 bg-green-600 text-white font-semibold rounded-lg shadow-md hover:bg-green-700">
                         Konfirmasi dan Bayar
                     </button>
+                    
+                    <p class="text-sm text-red-500 mt-2 text-center">
+                        Pastikan data sudah valid
+                    </p>
 
                 </div>
 

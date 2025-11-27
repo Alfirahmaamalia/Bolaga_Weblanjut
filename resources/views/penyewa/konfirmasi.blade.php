@@ -70,7 +70,7 @@
                 <hr class="my-6 border-gray-300">
 
                 {{-- Total --}}
-                <div class="flex justify-between items-center py-2">
+                <div class="flex justify-between items-center py-2 mb-6">
                     <span class="text-xl font-extrabold text-gray-900">TOTAL BAYAR</span>
                     <span class="text-2xl font-extrabold text-green-600">Rp{{ number_format($total, 0, ',', '.') }}</span>
                 </div>
@@ -88,14 +88,16 @@
                         <input type="hidden" name="jam[]" value="{{ $j }}">
                     @endforeach
                     <input type="hidden" name="total" value="{{ $total }}">
-
-                    <p class="text-sm text-red-500 mb-2">
-                        Pastikan data sudah benar
-                    </p>
+                    
+                    <!-- <hr class="my-6 border-gray-300"> -->
 
                     <button type="submit" class="w-full py-3 px-4 bg-green-600 text-white font-semibold rounded-lg shadow-md hover:bg-green-700 transition duration-300 ease-in-out focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2">
                         Konfirmasi dan Lanjut Pembayaran
                     </button>
+                    
+                    <p class="text-sm text-red-500 mt-2 text-center">
+                        Pastikan data sudah valid
+                    </p>
                 </form>
 
             </div>

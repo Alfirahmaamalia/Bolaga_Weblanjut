@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 use Illuminate\Http\Request;
+use Illuminate\Support\Str;
 use App\Models\Lapangan;
 use App\Models\Booking;
 
@@ -78,6 +79,30 @@ class BookingController extends Controller
 
     public function konfirmasiPembayaran(Request $request, Booking $booking)
     {
+        // Validasi input
+        $request->validate([
+            'metode_pembayaran' => 'required',
+            'bukti_pembayaran' => 'required|image|mimes:jpg,jpeg,png|max:2048',
+        ]);
+
+        // Upload bukti pembayaran
+        if ($request->hasFile('bukti_pembayaran')) {
+
+            $file = $request->file('bukti_pembayaran');
+
+            // Mendapatkan extension file (jpg/png)
+            $ext = $file->getClientOriginalExtension();
+
+            // Buat nama unik agar tidak tabrakan
+            $namaFile = Str::uuid() . '.' . $ext;
+
+            // Simpan ke storage/app/public/bukti/
+            $file->storeAs('public/bukti', $namaFile);
+
+            // Simpan path ke database (akses via /storage)
+            $booking->bukti_pembayaran = 'storage/bukti/' . $namaFile;
+        }
+
         $booking->status = 'berhasil';
         $booking->metode_pembayaran = $request->metode_pembayaran;
         $booking->save();
