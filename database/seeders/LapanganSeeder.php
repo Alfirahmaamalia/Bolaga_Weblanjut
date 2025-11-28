@@ -84,5 +84,29 @@ class LapanganSeeder extends Seeder
             'foto' => 'images/tenis.jpg',
             'aktif' => true,
         ]);
+
+        Lapangan::create([
+            'penyedia_id' => 7,
+            'nama_lapangan' => 'Futsal Harmoni',
+            'lokasi' => 'Jl. Anggrek No. 18, Kalimantan',
+            'jenis_olahraga' => 'Futsal',
+            'harga_perjam' => 100000,
+            'deskripsi' => 'Lapangan Futsal outdoor dengan permukaan Lapangan Asli.',
+            'fasilitas' => json_encode(['Toilet', 'Parkir', 'Kantin']),
+            'foto' => 'images/futsal.jpg',
+            'aktif' => true,
+        ]);
+
+        Lapangan::create([
+            'penyedia_id' => 7,
+            'nama_lapangan' => 'Basketball Nugrah',
+            'lokasi' => 'Jl. Anggrek No. 18, Lampung',
+            'jenis_olahraga' => 'Basket',
+            'harga_perjam' => 150000,
+            'deskripsi' => 'Lapangan Basker Indoor dengan permukaan hard court.',
+            'fasilitas' => json_encode(['Toilet', 'Parkir', 'Kantin']),
+            'foto' => 'images/baskett.jpg',
+            'aktif' => true,
+        ]);
     }
 }

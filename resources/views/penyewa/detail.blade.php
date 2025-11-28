@@ -50,36 +50,38 @@
                         </p>
                     </div>
 
-                    <!-- Tanggal -->
+                                        <!-- Tanggal -->
                     <div class="mb-4">
                         <label class="font-semibold">Tanggal</label>
                         <input type="date"
-                               name="tanggal"
-                               class="w-full p-2 rounded-lg border"
-                               required>
+                            name="tanggal"
+                            class="w-full p-2 rounded-lg border"
+                            min="{{ date('Y-m-d') }}"
+                            required>
                     </div>
 
+                    <!-- Jam Mulai -->
                     <div class="mb-4">
-                        <label class="font-semibold">Pilih Jam</label>
-
-                        <!-- Dropdown -->
-                        <select id="jamDropdown" class="w-full p-2 rounded-lg border">
-                            <option value="">-- Pilih Jam --</option>
-                            <option value="08:00">08.00</option>
-                            <option value="09:00">09.00</option>
-                            <option value="10:00">10.00</option>
-                            <option value="11:00">11.00</option>
-                            <option value="12:00">12.00</option>
-                            <option value="13:00">13.00</option>
-                            <option value="14:00">14.00</option>
-                            <option value="15:00">15.00</option>
-                            <option value="16:00">16.00</option>
-                            <option value="17:00">17.00</option>
+                        <label class="font-semibold">Jam Mulai</label>
+                        <select name="jam_mulai" id="jamMulai" class="w-full p-2 rounded-lg border" required>
+                            <option value="">Pilih Jam Mulai</option>
+                            @foreach(['08:00','09:00','10:00','11:00','12:00','13:00','14:00','15:00','16:00','17:00'] as $jam)
+                                <option value="{{ $jam }}">{{ $jam }}</option>
+                            @endforeach
                         </select>
-
-                        <!-- Tempat munculnya pilihan jam -->
-                        <div id="jamTerpilih" class="mt-3 flex flex-wrap gap-2"></div>
                     </div>
+
+                    <!-- Jam Selesai -->
+                    <div class="mb-4">
+                        <label class="font-semibold">Jam Selesai</label>
+                        <select name="jam_selesai" id="jamSelesai" class="w-full p-2 rounded-lg border" required disabled>
+                            <option value="">Pilih Jam Selesai</option>
+                            @foreach(['08:00','09:00','10:00','11:00','12:00','13:00','14:00','15:00','16:00','17:00'] as $jam)
+                                <option value="{{ $jam }}">{{ $jam }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+
                     
                     <!-- Hidden input untuk dikirim -->
                     <div id="jamInputs"></div>
@@ -131,65 +133,76 @@
 
 </div>
 <script>
-    const dropdown = document.getElementById("jamDropdown");
-    const container = document.getElementById("jamTerpilih");
-    const jamInputs = document.getElementById("jamInputs");
-    // const submitBtn = document.querySelector('form button[type="submit"]');
-    let listJam = [];
-    let submitBtn;
+    const jamMulaiSelect = document.getElementById("jamMulai");
+    const jamSelesaiSelect = document.getElementById("jamSelesai");
+    const tanggalInput = document.querySelector('input[name="tanggal"]');
+    const statusBox = document.getElementById("status-lapangan");
+    const submitBtn = document.querySelector('form button[type="submit"]');
+    const totalJamEl = document.getElementById("totalJam");
+    const totalHargaEl = document.getElementById("totalHarga");
 
-    function renderJam() {
-        container.innerHTML = "";
-        jamInputs.innerHTML = "";
+    const availableTimes = ['08:00', '09:00', '10:00', '11:00', '12:00', '13:00', '14:00', '15:00', '16:00', '17:00'];
 
-        // urutkan jam berdasarkan waktu
-        listJam.sort((a, b) => a.localeCompare(b));
+    function updateJamSelesai() {
+        const jamMulai = jamMulaiSelect.value;
+        jamSelesaiSelect.innerHTML = '<option value="">Pilih Jam Selesai</option>';
 
-        listJam.forEach(jam => {
-            // badge tampil
-            const tag = document.createElement("div");
-            tag.className = "px-3 py-1 bg-blue-200 rounded-lg flex items-center gap-2";
-            tag.innerHTML = `
-                ${jam}
-                <button type="button" class="text-red-600 font-bold" onclick="removeJam('${jam}', this)">×</button>
-            `;
-            container.appendChild(tag);
+        if (jamMulai) {
+            jamSelesaiSelect.disabled = false;
+            const startIndex = availableTimes.indexOf(jamMulai);
+            for (let i = startIndex + 1; i < availableTimes.length; i++) {
+                const option = document.createElement("option");
+                option.value = availableTimes[i];
+                option.textContent = availableTimes[i];
+                jamSelesaiSelect.appendChild(option);
+            }
+        } else {
+            jamSelesaiSelect.disabled = true;
+        }
+        updateTotal();
+    }
 
-            // hidden input
-            const input = document.createElement("input");
-            input.type = "hidden";
-            input.name = "jam[]";
-            input.value = jam;
-            input.id = "jam-" + jam;
-            jamInputs.appendChild(input);
-        });
+    function updateTotal() {
+        const jamMulai = jamMulaiSelect.value;
+        const jamSelesai = jamSelesaiSelect.value;
+        let totalJam = 0;
+
+        if (jamMulai && jamSelesai) {
+            const startIndex = availableTimes.indexOf(jamMulai);
+            const endIndex = availableTimes.indexOf(jamSelesai);
+            totalJam = endIndex - startIndex;
+        }
+
+        totalJamEl.textContent = totalJam;
+        const hargaPerJam = {{ $lapangan->harga_perjam }};
+        const adminFee = 5000;
+        const totalHarga = hargaPerJam * totalJam + adminFee;
+        totalHargaEl.textContent = 'Rp' + totalHarga.toLocaleString('id-ID');
+
+        cekSlot();
     }
 
     function cekSlot() {
-        const tanggalInput = document.querySelector('input[name="tanggal"]');
-        const statusBox = document.getElementById("status-lapangan");
-
         const tanggal = tanggalInput.value;
+        const jamMulai = jamMulaiSelect.value;
+        const jamSelesai = jamSelesaiSelect.value;
         const lapanganId = "{{ $lapangan->lapangan_id }}";
-        
-        if (!tanggal || listJam.length === 0) {
+
+        if (!tanggal || !jamMulai || !jamSelesai) {
             statusBox.className = "bg-green-100 text-green-700 px-3 py-1 rounded-full text-sm font-semibold";
             statusBox.textContent = "Lapangan Tersedia";
-
-            // tombol aktif
             submitBtn.disabled = false;
             submitBtn.classList.remove('bg-gray-400', 'cursor-not-allowed');
             submitBtn.classList.add('bg-green-600', 'hover:bg-green-700');
             return;
         }
-        
+
         const queryString = new URLSearchParams({
             lapangan_id: lapanganId,
             tanggal: tanggal,
-            // kirim jam[] sebagai array
+            jam_mulai: jamMulai,
+            jam_selesai: jamSelesai
         });
-
-        listJam.forEach(j => queryString.append('jam[]', j));
 
         fetch(`/penyewa/cek-slot?${queryString.toString()}`)
         .then(res => res.json())
@@ -197,16 +210,12 @@
             if (data.available) {
                 statusBox.className = "bg-green-100 text-green-700 px-3 py-1 rounded-full text-sm font-semibold";
                 statusBox.textContent = "Lapangan Tersedia";
-            
-                // tombol aktif
                 submitBtn.disabled = false;
                 submitBtn.classList.remove('bg-gray-400', 'cursor-not-allowed');
                 submitBtn.classList.add('bg-green-600', 'hover:bg-green-700');
             } else {
                 statusBox.className = "bg-red-100 text-red-700 px-3 py-1 rounded-full text-sm font-semibold";
                 statusBox.textContent = "Lapangan Tidak Tersedia";
-            
-                // tombol nonaktif
                 submitBtn.disabled = true;
                 submitBtn.classList.remove('bg-green-600', 'hover:bg-green-700');
                 submitBtn.classList.add('bg-gray-400', 'cursor-not-allowed');
@@ -218,47 +227,10 @@
         });
     }
 
-    function updateTotal() {
-        const totalJam = listJam.length > 0 ? listJam.length : 1; // default 1 jika kosong
-        const hargaPerJam = {{ $lapangan->harga_perjam }};
-        const adminFee = 5000;
-
-        document.getElementById("totalJam").textContent = totalJam;
-        const totalHarga = hargaPerJam * totalJam + adminFee;
-        document.getElementById("totalHarga").textContent = 'Rp' + totalHarga.toLocaleString('id-ID');
-
-        cekSlot();
-    }
-
-    dropdown.addEventListener("change", function () {
-        const jam = this.value;
-        if (!jam || listJam.includes(jam)) return this.value = "";
-
-        listJam.push(jam);
-        renderJam();
-        updateTotal();
-        this.value = "";
-
-        updateTotal();
-
-        this.value = "";
-    });
-
-    function removeJam(jam) {
-        listJam = listJam.filter(j => j !== jam);
-        renderJam();
-        updateTotal();
-    }
-
     document.addEventListener("DOMContentLoaded", function () {
-        const tanggalInput = document.querySelector('input[name="tanggal"]');
-        const jamInput = document.getElementById('jamDropdown');
-        const statusBox = document.getElementById("status-lapangan");
-        submitBtn = document.querySelector('form button[type="submit"]');
-
+        jamMulaiSelect.addEventListener("change", updateJamSelesai);
+        jamSelesaiSelect.addEventListener("change", updateTotal);
         tanggalInput.addEventListener("change", cekSlot);
-        jamInput.addEventListener("change", cekSlot);
-
         updateTotal();
     });
 </script>
