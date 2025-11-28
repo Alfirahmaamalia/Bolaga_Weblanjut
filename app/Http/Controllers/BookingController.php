@@ -12,20 +12,24 @@ class BookingController extends Controller
     public function konfirmasi(Request $r)
     {
         // GUARD CLAUSE: Pastikan parameter esensial ada
-        if (!$r->filled(['lapangan_id', 'tanggal', 'jam'])) {
+        if (!$r->filled(['lapangan_id', 'tanggal', 'jam_mulai', 'jam_selesai'])) {
             return redirect()->route('penyewa.dashboard')
-            ->withErrors('Booking dibatalkan. Harap pilih lapangan, tanggal, dan jam yang valid.');
+            ->withErrors('Booking dibatalkan. Harap pilih lapangan, tanggal, jam mulai, dan jam selesai yang valid.');
         }
 
         // Ambil data lapangan dari database
         $lapangan = Lapangan::findOrFail($r->lapangan_id);
 
-        // Pastikan jam diterima sebagai array
-        $jam_array = (array) $r->jam;
+        // Hitung durasi penyewaan dari jam mulai dan selesai
+        $availableTimes = ['08:00', '09:00', '10:00', '11:00', '12:00', '13:00', '14:00', '15:00', '16:00', '17:00'];
+        $startIndex = array_search($r->jam_mulai, $availableTimes);
+        $endIndex = array_search($r->jam_selesai, $availableTimes);
+        $durasi_jam = $endIndex - $startIndex;
 
-        // Hitung durasi penyewaan dari jumlah jam
-        $durasi_jam = count($jam_array);
-        if ($durasi_jam <= 0) $durasi_jam = 1; // default minimal 1 jam
+        if ($durasi_jam <= 0) {
+            return redirect()->route('penyewa.dashboard')
+            ->withErrors('Jam selesai harus setelah jam mulai.');
+        }
 
         // Hitung total (harga per jam × durasi + admin)
         $admin = 5000;
@@ -35,7 +39,8 @@ class BookingController extends Controller
         return view('penyewa.konfirmasi', [
             'lapangan' => $lapangan,
             'tanggal'  => $r->tanggal,
-            'jam' => $jam_array,
+            'jam_mulai' => $r->jam_mulai,
+            'jam_selesai' => $r->jam_selesai,
             'durasi' => $durasi_jam,
             'admin' => $admin,
             'total' => $total
@@ -46,9 +51,10 @@ class BookingController extends Controller
     {
         $booking = new Booking();
         $booking->lapangan_id = $request->lapangan_id;
-        $booking->penyewa_id = auth()->id(); // user yang login
+        $booking->penyewa_id = Auth::id(); // user yang login
         $booking->tanggal = $request->tanggal;
-        $booking->jam = $request->jam;
+        $booking->jam_mulai = $request->jam_mulai;
+        $booking->jam_selesai = $request->jam_selesai;
         $booking->total_harga = $request->total;
         $booking->metode_pembayaran = $request->metode_pembayaran;
         $booking->status = 'belum bayar';
@@ -61,17 +67,20 @@ class BookingController extends Controller
     public function pembayaran(Booking $booking)
     {
         $lapangan = Lapangan::findOrFail($booking->lapangan_id);
-        $jam = (array) $booking->jam;
-        $durasi = count($jam);
+        $availableTimes = ['08:00', '09:00', '10:00', '11:00', '12:00', '13:00', '14:00', '15:00', '16:00', '17:00'];
+        $startIndex = array_search($booking->jam_mulai, $availableTimes);
+        $endIndex = array_search($booking->jam_selesai, $availableTimes);
+        $durasi = $endIndex - $startIndex;
         $admin = 5000;
         $harga_total = $lapangan->harga_perjam * $durasi;
         $total = $harga_total + $admin;
-        
+
         return view('penyewa.pembayaran', [
             'booking' => $booking,
             'lapangan' => $lapangan,
             'tanggal' => $booking->tanggal,
-            'jam' => $jam,
+            'jam_mulai' => $booking->jam_mulai,
+            'jam_selesai' => $booking->jam_selesai,
             'durasi' => $durasi,
             'total' => $total,
             'admin' => $admin,

@@ -48,7 +48,7 @@ Route::middleware('auth')->group(function () {
 
     // konfirmasi booking
     Route::get(
-        '/penyewa/booking/konfirmasi/{lapangan_id}', 
+        '/penyewa/booking/konfirmasi', 
          [BookingController::class, 'konfirmasi']
     )->name('penyewa.booking.konfirmasi');
     

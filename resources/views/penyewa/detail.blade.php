@@ -29,7 +29,8 @@
 
                 <h2 class="text-2xl font-bold mb-4">Form Booking</h2>
 
-                <form action="{{ route('penyewa.booking.konfirmasi', ['lapangan_id' => $lapangan->lapangan_id]) }}" method="GET">
+                <form action="{{ route('penyewa.booking.konfirmasi') }}" method="GET">
+
 
                     <!-- Hidden Lapangan ID -->
                     <input type="hidden" name="lapangan_id" value="{{ $lapangan->lapangan_id }}">
@@ -76,9 +77,6 @@
                         <label class="font-semibold">Jam Selesai</label>
                         <select name="jam_selesai" id="jamSelesai" class="w-full p-2 rounded-lg border" required disabled>
                             <option value="">Pilih Jam Selesai</option>
-                            @foreach(['08:00','09:00','10:00','11:00','12:00','13:00','14:00','15:00','16:00','17:00'] as $jam)
-                                <option value="{{ $jam }}">{{ $jam }}</option>
-                            @endforeach
                         </select>
                     </div>
 
