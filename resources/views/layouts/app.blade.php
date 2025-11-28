@@ -31,8 +31,8 @@
             <div id="navbarMenu" class="hidden md:flex gap-6 items-center">
 
                 <!-- Riwayat -->
-                <a href="{{ route('penyewa.booking') }}"
-                   class="text-white hover:bg-green-700 px-3 py-2 rounded-lg {{ request()->routeIs('penyewa.booking') ? 'font-semibold text-blue-600' : '' }}">
+                <a href="{{ route('penyewa.riwayat') }}"
+                   class="text-white hover:bg-green-700 px-3 py-2 rounded-lg {{ request()->routeIs('penyewa.riwayat') ? 'font-semibold text-blue-600' : '' }}">
                     Riwayat
                 </a>
 
@@ -81,8 +81,8 @@
         <!-- Mobile Menu -->
         <div id="mobileMenu" class="md:hidden hidden pb-4 space-y-2">
 
-            <a href="{{ route('penyewa.booking') }}"
-               class="block px-2 py-2 text-white hover:bg-green-700 px-3 py-2 rounded-lg {{ request()->routeIs('penyewa.booking') ? 'font-semibold text-blue-600' : '' }}">
+            <a href="{{ route('penyewa.riwayat') }}"
+               class="block px-2 py-2 text-white hover:bg-green-700 px-3 py-2 rounded-lg {{ request()->routeIs('penyewa.riwayat') ? 'font-semibold text-blue-600' : '' }}">
                 Riwayat
             </a>
 

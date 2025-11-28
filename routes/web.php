@@ -39,9 +39,8 @@ Route::middleware('auth')->group(function () {
     Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
     // Riwayat booking
-    Route::get('/penyewa/booking', function () {
-        return "Riwayat booking (belum dibuat)";
-    })->name('penyewa.booking');
+    Route::get('/penyewa/riwayat', [BookingController::class, 'riwayat'])
+        ->name('penyewa.riwayat');
 
     // Detail Lapangan
     Route::get('/penyewa/lapangan/{id}', [LapanganController::class, 'detail'])

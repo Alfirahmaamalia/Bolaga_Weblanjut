@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Auth;
 use App\Models\Lapangan;
 use App\Models\Booking;
 
@@ -47,7 +48,7 @@ class BookingController extends Controller
         $booking->lapangan_id = $request->lapangan_id;
         $booking->penyewa_id = auth()->id(); // user yang login
         $booking->tanggal = $request->tanggal;
-        $booking->jam = $request->jam; // array time
+        $booking->jam = $request->jam;
         $booking->total_harga = $request->total;
         $booking->metode_pembayaran = $request->metode_pembayaran;
         $booking->status = 'belum bayar';
@@ -97,7 +98,7 @@ class BookingController extends Controller
             $namaFile = Str::uuid() . '.' . $ext;
 
             // Simpan ke storage/app/public/bukti/
-            $file->storeAs('public/bukti', $namaFile);
+            $file->storeAs('bukti', $namaFile, 'public');
 
             // Simpan path ke database (akses via /storage)
             $booking->bukti_pembayaran = 'storage/bukti/' . $namaFile;
@@ -108,5 +109,15 @@ class BookingController extends Controller
         $booking->save();
 
         return redirect()->route('penyewa.dashboard')->with('success', 'Pembayaran berhasil. Booking Anda telah dikonfirmasi.');
+    }
+
+    public function riwayat(Request $request, Booking $booking, Lapangan $lapangan)
+    {
+        $penyewaId = Auth::user()->user_id;
+        $riwayat = Booking::with('lapangan')
+                ->where('penyewa_id', $penyewaId)
+                ->orderBy('booking_id', 'desc')
+                ->get();
+        return view('penyewa.riwayat', compact('riwayat'));
     }
 }

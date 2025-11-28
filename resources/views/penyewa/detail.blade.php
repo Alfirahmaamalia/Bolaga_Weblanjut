@@ -138,6 +138,33 @@
     let listJam = [];
     let submitBtn;
 
+    function renderJam() {
+        container.innerHTML = "";
+        jamInputs.innerHTML = "";
+
+        // urutkan jam berdasarkan waktu
+        listJam.sort((a, b) => a.localeCompare(b));
+
+        listJam.forEach(jam => {
+            // badge tampil
+            const tag = document.createElement("div");
+            tag.className = "px-3 py-1 bg-blue-200 rounded-lg flex items-center gap-2";
+            tag.innerHTML = `
+                ${jam}
+                <button type="button" class="text-red-600 font-bold" onclick="removeJam('${jam}', this)">×</button>
+            `;
+            container.appendChild(tag);
+
+            // hidden input
+            const input = document.createElement("input");
+            input.type = "hidden";
+            input.name = "jam[]";
+            input.value = jam;
+            input.id = "jam-" + jam;
+            jamInputs.appendChild(input);
+        });
+    }
+
     function cekSlot() {
         const tanggalInput = document.querySelector('input[name="tanggal"]');
         const statusBox = document.getElementById("status-lapangan");
@@ -207,35 +234,46 @@
         const jam = this.value;
         if (!jam || listJam.includes(jam)) return this.value = "";
 
+        // listJam.push(jam);
+
+        // // Tambahkan tampilan badge/tag
+        // const tag = document.createElement("div");
+        // tag.className = "px-3 py-1 bg-blue-200 rounded-lg flex items-center gap-2";
+        // tag.innerHTML = `
+        //     ${jam}
+        //     <button type="button" class="text-red-600 font-bold" onclick="removeJam('${jam}', this)">×</button>
+        // `;
+        // container.appendChild(tag);
+
+        // // hidden input form
+        // const input = document.createElement("input");
+        // input.type = "hidden";
+        // input.name = "jam[]";
+        // input.value = jam;
+        // input.id = "jam-" + jam;
+        // jamInputs.appendChild(input);
+
         listJam.push(jam);
-
-        // Tambahkan tampilan badge/tag
-        const tag = document.createElement("div");
-        tag.className = "px-3 py-1 bg-blue-200 rounded-lg flex items-center gap-2";
-        tag.innerHTML = `
-            ${jam}
-            <button type="button" class="text-red-600 font-bold" onclick="removeJam('${jam}', this)">×</button>
-        `;
-        container.appendChild(tag);
-
-        // hidden input form
-        const input = document.createElement("input");
-        input.type = "hidden";
-        input.name = "jam[]";
-        input.value = jam;
-        input.id = "jam-" + jam;
-        jamInputs.appendChild(input);
+        renderJam();
+        updateTotal();
+        this.value = "";
 
         updateTotal();
 
         this.value = "";
     });
 
-    function removeJam(jam, btn) {
-        listJam = listJam.filter(j => j !== jam);
-        btn.parentElement.remove();
-        document.getElementById("jam-" + jam)?.remove();
+    // function removeJam(jam, btn) {
+    //     listJam = listJam.filter(j => j !== jam);
+    //     btn.parentElement.remove();
+    //     document.getElementById("jam-" + jam)?.remove();
     
+    //     updateTotal();
+    // }
+
+    function removeJam(jam) {
+        listJam = listJam.filter(j => j !== jam);
+        renderJam();
         updateTotal();
     }
 

@@ -71,13 +71,13 @@
     <section class="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
 
         @foreach($items as $item)
-        <div class="bg-white rounded-xl shadow-md overflow-hidden transition hover:shadow-lg">
+        <div class="bg-white rounded-xl shadow-md overflow-hidden transition hover:shadow-lg flex flex-col h-full">
 
             <img src="{{ asset($item['foto']) }}"
                  class="w-full h-48 object-cover"
                  onerror="this.src='https://picsum.photos/600/400?random={{ rand(1,9999) }}'">
 
-            <div class="p-4">
+            <div class="p-4 flex flex-col h-full">
 
                 <!-- Jenis + Rating -->
                 <div class="flex justify-between items-center mb-2">
@@ -108,7 +108,7 @@
                     @endforeach
                 </div>
 
-                <div class="flex justify-between items-center">
+                <div class="flex justify-between items-center mt-auto">
                     <p class="font-bold">
                         Rp{{ number_format($item['harga_perjam'],0,',','.') }}
                         <span class="text-sm text-gray-600">/jam</span>

@@ -34,8 +34,8 @@
                                 ['id' => 'bri', 'nama' => 'BRI', 'logo' => '/images/logoPembayaran/bri.png'],
                                 ['id' => 'bni', 'nama' => 'BNI', 'logo' => '/images/logoPembayaran/bni.png'],
                                 ['id' => 'mandiri', 'nama' => 'Mandiri', 'logo' => '/images/logoPembayaran/mandiri.png'],
-                                ['id' => 'transfer', 'nama' => 'Transfer Bank', 'logo' => '/images/logoPembayaran/bank.png'],
-                                ['id' => 'kartu', 'nama' => 'Kartu Kredit', 'logo' => '/images/logoPembayaran/creditcard.png'],
+                                ['id' => 'transfer bank', 'nama' => 'Transfer Bank', 'logo' => '/images/logoPembayaran/bank.png'],
+                                ['id' => 'kartu kredit', 'nama' => 'Kartu Kredit', 'logo' => '/images/logoPembayaran/creditcard.png'],
                                 ['id' => 'dana', 'nama' => 'Dana', 'logo' => '/images/logoPembayaran/dana.png'],
                             ];
                         @endphp
