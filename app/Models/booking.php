@@ -55,4 +55,10 @@ class booking extends Model
     {
         return $this->belongsTo(User::class, 'penyewa_id', 'user_id');
     }
+
+    public function penyedia()
+    {
+        return $this->belongsTo(User::class, 'user_id_penyedia', 'user_id');
+    }
+
 }

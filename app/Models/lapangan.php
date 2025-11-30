@@ -15,7 +15,7 @@ class Lapangan extends Model
     protected $keyType = 'int';
 
     protected $fillable = [
-        'penyedia_id',
+        'user_id_penyedia',
         'nama_lapangan',
         'jenis_olahraga',
         'harga_perjam',
@@ -47,4 +47,10 @@ class Lapangan extends Model
     {
         return $this->jam_operasional()->where('hari', $hari)->first();
     }
+
+    public function user()
+{
+    return $this->belongsTo(User::class, 'user_id');
+}
+
 }

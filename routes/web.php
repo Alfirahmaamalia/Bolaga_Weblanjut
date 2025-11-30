@@ -82,14 +82,37 @@ Route::middleware(['auth', 'role:penyewa'])->prefix('penyewa')->name('penyewa.')
 // -------------------------------------------------
 // RUTE PENYEDIA (role: penyedia)
 // -------------------------------------------------
+// -------------------------------------------------
+// RUTE PENYEDIA (role: penyedia)
+// -------------------------------------------------
 Route::middleware(['auth', 'role:penyedia'])->prefix('penyedia')->name('penyedia.')->group(function () {
 
-    // Dashboard
-    Route::get('/dashboard', fn() => view('penyedia.dashboard'))->name('dashboard');
+    // Dashboard Penyedia
+    Route::get('/dashboard', [BookingController::class, 'dashboard'])
+        ->name('dashboard');
+
+    // Manajemen Booking
+    Route::get('/manajemen-booking', [BookingController::class, 'manajemenBooking'])
+        ->name('manajemenbooking');
+
+    // Form tambah lapangan
+    Route::get('/lapangan/tambah', [LapanganController::class, 'create'])
+        ->name('lapangan.create');
 
     // Kelola Lapangan
-    Route::get('/kelola-lapangan', [LapanganController::class, 'kelolalapangan'])->name('kelolalapangan');
-    Route::post('/lapangan', [LapanganController::class, 'store'])->name('lapangan.store');
-    Route::put('/lapangan/{lapangan}', [LapanganController::class, 'update'])->name('lapangan.update');
-    Route::delete('/lapangan/{lapangan}', [LapanganController::class, 'destroy'])->name('lapangan.destroy');
+    Route::get('/kelola-lapangan', [LapanganController::class, 'kelolalapangan'])
+        ->name('kelolalapangan');
+
+    // CRUD Lapangan
+    Route::post('/lapangan', [LapanganController::class, 'store'])
+        ->name('lapangan.store');
+
+    Route::get('/lapangan/{lapangan}/edit', [LapanganController::class, 'edit'])
+        ->name('lapangan.edit');
+
+    Route::put('/lapangan/{lapangan}', [LapanganController::class, 'update'])
+        ->name('lapangan.update');
+
+    Route::delete('/lapangan/{lapangan}', [LapanganController::class, 'destroy'])
+        ->name('lapangan.destroy');
 });

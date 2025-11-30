@@ -80,8 +80,8 @@ class LapanganController extends Controller
 
     public function kelolalapangan()
     {
-        $data = Lapangan::where('penyedia_id', auth()->id())->paginate(10);
-        return view('penyedia.kelolalapangan', compact('data'));
+        $lapangan = Lapangan::where('user_id_penyedia', auth()->id())->get();
+        return view('penyedia.kelolalapangan', compact('lapangan'));
     }
 
     public function store(Request $request)
@@ -108,6 +108,12 @@ class LapanganController extends Controller
         Lapangan::create($v);
         return redirect()->route('penyedia.kelolalapangan')->with('success', 'Lapangan berhasil ditambahkan.');
     }
+
+    public function create()
+{
+    return view('penyedia.tambah_lapangan');
+}
+
 
     public function update(Request $request, $id)
     {

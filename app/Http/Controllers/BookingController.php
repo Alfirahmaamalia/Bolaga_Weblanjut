@@ -10,6 +10,29 @@ use Carbon\Carbon;
 
 class BookingController extends Controller
 {
+
+    public function dashboard()
+{
+    $userId = Auth::user()->id; // ID penyedia
+
+    // Ambil semua lapangan milik penyedia
+    $lapanganIds = \App\Models\Lapangan::where('user_id', $userId)->pluck('lapangan_id');
+
+    // Hitung total booking untuk semua lapangan itu
+    $jumlahBooking = \App\Models\Booking::whereIn('lapangan_id', $lapanganIds)
+        ->where('status', 'booking')
+        ->count();
+
+    // Hitung total pemasukan (misal ada kolom total_harga)
+    $totalPendapatan = \App\Models\Booking::whereIn('lapangan_id', $lapanganIds)
+        ->sum('total_harga');
+
+    // Hitung total lapangan
+    $jumlahLapangan = \App\Models\Lapangan::where('user_id', $userId)->count();
+
+    return view('penyedia.dashboard', compact('jumlahBooking', 'totalPendapatan', 'jumlahLapangan'));
+}
+
     public function konfirmasi(Request $r)
     {
         // 1. GUARD CLAUSE: Pastikan parameter esensial ada
@@ -165,4 +188,23 @@ class BookingController extends Controller
                 ->get();
         return view('penyewa.riwayat', compact('riwayat'));
     }
+
+    public function manajemenBooking()
+{
+    $userId = Auth::user()->id;
+
+    $bookings = Booking::with('penyewa', 'lapangan')
+        ->where('user_id_penyedia', $userId)
+        ->orderBy('created_at', 'desc')
+        ->latest()->get();
+
+    return view('penyedia.manajemenbooking', [
+        'bookings' => $bookings,
+        'total' => $bookings->count(),
+        'menunggu' => $bookings->where('status', 'Menunggu')->count(),
+        'dikonfirmasi' => $bookings->where('status', 'Dikonfirmasi')->count(),
+        'selesai' => $bookings->where('status', 'Selesai')->count(),
+    ]);
+}
+
 }
