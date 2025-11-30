@@ -10,29 +10,14 @@ use Carbon\Carbon;
 
 class LapanganController extends Controller
 {
-    // ==========================
-    // DASHBOARD PENYEWA (Dummy)
-    // ==========================
-    // public function dashboard()
-    // {
-    //     // Ambil semua lapangan yang aktif
-    //     $items = Lapangan::where('aktif', true)->get();
-        
-    //     // Jika kolom fasilitas berupa string, ubah jadi array
-    //     foreach ($items as $i) {
-    //         if (is_string($i->fasilitas)) {
-    //             $i->fasilitas = json_decode($i->fasilitas, true);
-    //         }
-    //     }
-
-    //     return view('penyewa.dashboard', compact('items'));
-    // }
-
     public function dashboard(Request $r)
     {
         $query = Lapangan::where('aktif', true);
 
         // filter (jika ada) -- contoh singkat
+        if ($r->search) {
+            $query->where('nama_lapangan', 'ILIKE', "%{$r->search}%");
+        }
         if ($r->jenis) {
             $query->where('jenis_olahraga', $r->jenis);
         }
@@ -51,28 +36,10 @@ class LapanganController extends Controller
 
         $items = $query->get();
 
-        // pastikan fasilitas jadi array (aman jika kolom berformat string JSON)
-        foreach ($items as $i) {
-            // jika kosong set array kosong
-            if (is_null($i->fasilitas)) {
-                $i->fasilitas = [];
-                continue;
-            }
-
-            // jika sudah array/collection biarkan
-            if (is_array($i->fasilitas) || $i->fasilitas instanceof \Illuminate\Support\Collection) {
-                continue;
-            }
-
-            // jika string, coba decode JSON
-            if (is_string($i->fasilitas)) {
-                $decoded = json_decode($i->fasilitas, true);
-                $i->fasilitas = is_array($decoded) ? $decoded : [];
-            } else {
-                // fallback
-                $i->fasilitas = [];
-            }
-        }
+        $items->map(function($i){
+            $i->fasilitas = is_string($i->fasilitas) ? json_decode($i->fasilitas, true) ?? [] : ($i->fasilitas ?? []);
+            return $i;
+        });
 
         return view('penyewa.dashboard', compact('items'));
     }
@@ -190,22 +157,27 @@ class LapanganController extends Controller
     public function cekSlot(Request $r)
     {
         // echo "<script>alert('cek slot controller terpanggil');</script>";
-        if (!$r->tanggal || !$r->jam) {
+        if (!$r->tanggal || !$r->jam_mulai) {
             return response()->json(['available' => true]); // belum memilih lengkap
         }
 
-        $jam = is_array($r->jam) ? $r->jam : [$r->jam];
+        $jamMulai = $r->jam_mulai;
+        $jamSelesai = $r->jam_selesai;
+
+        if (!$jamSelesai) {
+            $jamSelesai = \Carbon\Carbon::createFromFormat('H:i', $jamMulai)
+                        ->addHour()
+                        ->format('H:i');
+        }
 
         $ada = DB::table('booking')
-            ->where('lapangan_id', $r->lapangan_id)
-            ->where('tanggal', $r->tanggal)
-            // ->whereJsonContains('jam', $jam)
-            ->where(function ($q) use ($jam) {
-                foreach ($jam as $j) {
-                    $q->orWhereRaw('? = ANY(jam)', [$j]);
-                }
-            })
-            ->exists();
+        ->where('lapangan_id', $r->lapangan_id)
+        ->where('tanggal', $r->tanggal)
+        ->where(function($q) use ($jamMulai, $jamSelesai) {
+            $q->where('jam_mulai', '<', $jamSelesai)
+              ->where('jam_selesai', '>', $jamMulai);
+        })
+        ->exists();
 
         return response()->json([
             'available' => !$ada

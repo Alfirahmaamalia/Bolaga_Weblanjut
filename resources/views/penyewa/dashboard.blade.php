@@ -14,7 +14,16 @@
 
     <!-- FILTER BAR -->
     <section class="bg-white rounded-xl p-6 shadow-md mb-10">
-        <form method="GET" action="{{ route('penyewa.dashboard') }}" class="grid md:grid-cols-4 gap-6">
+        <form method="GET" action="{{ route('penyewa.dashboard') }}" class="grid md:grid-cols-5 gap-6">
+
+            <!-- Pencarian Lapangan -->
+            <div>
+                <label class="block font-semibold mb-1">Cari Lapangan</label>
+                <input type="text" name="search" 
+                    value="{{ request('search') }}"
+                    placeholder="Nama lapangan..." 
+                    class="w-full rounded-lg p-2 bg-gray-100">
+            </div>
 
             <!-- Jenis Olahraga -->
             <div>

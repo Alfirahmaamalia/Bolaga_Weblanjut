@@ -74,7 +74,7 @@
                         </div>
                         <div class="flex justify-between">
                             <span class="font-medium">Jam:</span>
-                            <span class="font-semibold text-gray-900">{{ implode(', ', $jam) }}</span>
+                            <span class="font-semibold text-gray-900">{{ $jam_mulai }} - {{ $jam_selesai }}</span>
                         </div>
                         <div class="flex justify-between">
                             <span class="font-medium">Durasi:</span>
@@ -109,9 +109,8 @@
                     {{-- Hidden Input --}}
                     <input type="hidden" name="lapangan_id" value="{{ $lapangan->lapangan_id }}">
                     <input type="hidden" name="tanggal" value="{{ $tanggal }}">
-                    @foreach ($jam as $j)
-                        <input type="hidden" name="jam[]" value="{{ $j }}">
-                    @endforeach
+                    <input type="hidden" name="jam_mulai" value="{{ $jam_mulai }}">
+                    <input type="hidden" name="jam_selesai" value="{{ $jam_selesai }}">
                     <input type="hidden" name="total" value="{{ $total }}">
                     
                     <hr class="my-6 border-gray-300">

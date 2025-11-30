@@ -17,7 +17,8 @@ class BookingSeeder extends Seeder
             'lapangan_id' => 1,
             'penyewa_id' => 7,
             'tanggal' => '2025-11-27',
-            'jam' => ['10:00', '11:00'],
+            'jam_mulai' => '10:00',
+            'jam_selesai' => '13:00',
             'total_harga' => 305000,
             'status' => 'belum bayar',
         ]);
@@ -26,7 +27,8 @@ class BookingSeeder extends Seeder
             'lapangan_id' => 2,
             'penyewa_id' => 7,
             'tanggal' => '2025-11-30',
-            'jam' => ['08:00', '12:00', '15:00'],
+            'jam_mulai' => '08:00',
+            'jam_selesai' => '15:00',
             'total_harga' => 245000,
             'status' => 'berhasil',
         ]);
@@ -35,7 +37,8 @@ class BookingSeeder extends Seeder
             'lapangan_id' => 3,
             'penyewa_id' => 7,
             'tanggal' => '2025-11-29',
-            'jam' => ['11:00'],
+            'jam_mulai' => '11:00',
+            'jam_selesai' => '12:00',
             'total_harga' => 125000,
             'status' => 'gagal',
         ]);

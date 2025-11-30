@@ -48,52 +48,15 @@
             </thead>
 
             <tbody>
-
-                <!-- DATA HARD CODE -->
-                @php
-                    // $riwayat = [
-                    //     [
-                    //         'nama' => 'Lapangan Futsal Garuda',
-                    //         'tanggal' => '2025-01-12',
-                    //         'jam' => '10:00 - 12:00',
-                    //         'status' => 'Berhasil',
-                    //         'harga' => 150000,
-                    //         'metode' => 'Transfer Bank',
-                    //         'bukti' => 'bukti1.jpg',
-                    //         'tanggal_booking' => '2025-11-28'
-                    //     ],
-                    //     [
-                    //         'nama' => 'Lapangan Badminton Sakura',
-                    //         'tanggal' => '2025-02-01',
-                    //         'jam' => '08:00 - 09:00',
-                    //         'status' => 'Menunggu',
-                    //         'harga' => 50000,
-                    //         'metode' => 'QRIS',
-                    //         'bukti' => 'bukti2.jpg',
-                    //         'tanggal_booking' => '2025-11-28'
-                    //     ],
-                    //     [
-                    //         'nama' => 'Lapangan Basket Merdeka',
-                    //         'tanggal' => '2025-03-03',
-                    //         'jam' => '15:00 - 17:00',
-                    //         'status' => 'Dibatalkan',
-                    //         'harga' => 0,
-                    //         'metode' => '-',
-                    //         'bukti' => '-',
-                    //         'tanggal_booking' => '2025-11-28'
-                    //     ],
-                    // ];
-                @endphp
-
                 @foreach ($riwayat as $i => $row)
                     <tr class="border-b hover:bg-gray-50">
                         <td class="p-3">{{ $i + 1 }}</td>
                         <td class="p-3 font-semibold">{{ $row->lapangan->nama_lapangan }}</td>
                         <td class="p-3">{{ date('d-m-Y', strtotime($row->tanggal)) }}</td>
                         <td>
-                            @foreach ($row->jam as $j)
-                                {{ date('H:i', strtotime($j)) }}<br>
-                            @endforeach
+                            {{ date('H:i', strtotime($row->jam_mulai)) }}
+                            -
+                            {{ date('H:i', strtotime($row->jam_selesai)) }}
                         </td>
 
                         <td class="p-3">

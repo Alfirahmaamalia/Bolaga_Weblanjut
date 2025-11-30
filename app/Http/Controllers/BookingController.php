@@ -24,6 +24,12 @@ class BookingController extends Controller
         $availableTimes = ['08:00', '09:00', '10:00', '11:00', '12:00', '13:00', '14:00', '15:00', '16:00', '17:00'];
         $startIndex = array_search($r->jam_mulai, $availableTimes);
         $endIndex = array_search($r->jam_selesai, $availableTimes);
+        
+        if ($startIndex === false || $endIndex === false) {
+            return redirect()->route('penyewa.dashboard')
+            ->withErrors('Jam mulai atau jam selesai tidak valid.');
+        }
+        
         $durasi_jam = $endIndex - $startIndex;
 
         if ($durasi_jam <= 0) {
@@ -68,8 +74,10 @@ class BookingController extends Controller
     {
         $lapangan = Lapangan::findOrFail($booking->lapangan_id);
         $availableTimes = ['08:00', '09:00', '10:00', '11:00', '12:00', '13:00', '14:00', '15:00', '16:00', '17:00'];
-        $startIndex = array_search($booking->jam_mulai, $availableTimes);
-        $endIndex = array_search($booking->jam_selesai, $availableTimes);
+        $jamMulai = date('H:i', strtotime($booking->jam_mulai));
+        $jamSelesai = date('H:i', strtotime($booking->jam_selesai));
+        $startIndex = array_search($jamMulai, $availableTimes);
+        $endIndex = array_search($jamSelesai, $availableTimes);
         $durasi = $endIndex - $startIndex;
         $admin = 5000;
         $harga_total = $lapangan->harga_perjam * $durasi;

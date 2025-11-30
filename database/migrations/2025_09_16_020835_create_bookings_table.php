@@ -25,7 +25,7 @@ return new class extends Migration
         });
 
         // Tambah kolom jam
-        DB::statement('ALTER TABLE booking ADD COLUMN jam TIME[];');
+        // DB::statement('ALTER TABLE booking ADD COLUMN jam TIME[];');
     }
 
     /**
