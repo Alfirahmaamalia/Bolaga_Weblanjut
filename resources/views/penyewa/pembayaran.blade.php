@@ -4,145 +4,125 @@
 
 @section('content')
 
-<div class="flex items-center justify-center min-h-screen bg-gray-50 px-4">
+<div class="flex items-center justify-center min-h-screen bg-gray-50 px-4 py-10">
 
-    <div class="w-full max-w-4xl bg-white shadow-xl rounded-lg border border-gray-100 p-6 md:p-8">
+    <div class="w-full max-w-5xl bg-white shadow-2xl rounded-2xl border border-gray-100 overflow-hidden">
 
-        <h3 class="text-2xl font-extrabold text-gray-900 mb-6">Pembayaran Booking</h3>
+        <div class="bg-green-600 px-8 py-4">
+            <h3 class="text-2xl font-bold text-white">Pembayaran Booking</h3>
+            <p class="text-green-100 text-sm">Selesaikan pembayaran untuk mengamankan jadwal Anda</p>
+        </div>
 
         <form action="{{ route('penyewa.booking.konfirmasi-pembayaran', $booking->booking_id) }}" 
             method="POST" 
             enctype="multipart/form-data"
+            class="p-6 md:p-8"
         >
             @csrf
 
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-10">
                 
                 {{-- ===========================
-                     KOLOM KIRI: METODE PEMBAYARAN 
+                     KOLOM KIRI: SCAN QRIS 
                 ============================ --}}
-                <div>
-                    <h4 class="text-lg font-bold text-gray-800 mb-4">Pilih Metode Pembayaran</h4>
+                <div class="flex flex-col items-center justify-center bg-gray-50 rounded-xl p-6 border-2 border-dashed border-gray-300">
+                    
+                    <h4 class="text-xl font-bold text-gray-800 mb-2">Scan QRIS</h4>
+                    <p class="text-gray-500 text-sm mb-6 text-center">Buka aplikasi e-wallet atau m-banking Anda dan scan kode di bawah ini.</p>
 
-                    <div class="grid grid-cols-2 gap-3">
+                    <div class="bg-white p-4 shadow-lg rounded-lg border">
+                        <img src="{{ asset($lapangan->qrcode_qris) }}" 
+                             alt="Kode QRIS {{ $lapangan->nama_lapangan }}" 
+                             class="w-64 h-64 object-contain"
+                             onerror="this.src='https://placehold.co/300x300?text=QRIS+Not+Found'">
+                    </div>
 
-                        {{-- Metode Pembayaran --}}
-                        @php
-                            $metodeList = [
-                                ['id' => 'qris', 'nama' => 'QRIS', 'logo' => '/images/logoPembayaran/qris.png'],
-                                ['id' => 'bca', 'nama' => 'BCA', 'logo' => '/images/logoPembayaran/bca.png'],
-                                ['id' => 'bri', 'nama' => 'BRI', 'logo' => '/images/logoPembayaran/bri.png'],
-                                ['id' => 'bni', 'nama' => 'BNI', 'logo' => '/images/logoPembayaran/bni.png'],
-                                ['id' => 'mandiri', 'nama' => 'Mandiri', 'logo' => '/images/logoPembayaran/mandiri.png'],
-                                ['id' => 'transfer bank', 'nama' => 'Transfer Bank', 'logo' => '/images/logoPembayaran/bank.png'],
-                                ['id' => 'kartu kredit', 'nama' => 'Kartu Kredit', 'logo' => '/images/logoPembayaran/creditcard.png'],
-                                ['id' => 'dana', 'nama' => 'Dana', 'logo' => '/images/logoPembayaran/dana.png'],
-                            ];
-                        @endphp
-
-                        @foreach ($metodeList as $m)
-                            <label class="cursor-pointer">
-                                <input type="radio" name="metode_pembayaran" value="{{ $m['id'] }}" class="peer hidden" required>
-                                
-                                <div class="p-3 border rounded-lg bg-white shadow-sm hover:shadow-md 
-                                    peer-checked:border-green-600 peer-checked:ring-2 peer-checked:ring-green-300 
-                                    transition duration-200 flex flex-col items-center">
-                                    
-                                    <img src="{{ $m['logo'] }}" alt="" class="w-10 h-10 mb-2 object-contain">
-                                    <span class="text-sm font-medium text-gray-800">{{ $m['nama'] }}</span>
-                                </div>
-                            </label>
-                        @endforeach
-
+                    <div class="mt-4 text-center">
+                        <p class="text-sm font-semibold text-gray-700">NMID / Atas Nama:</p>
+                        <p class="text-lg font-bold text-green-700">{{ $lapangan->nmid }} / {{ $lapangan->nama_qris }}</p>
                     </div>
                 </div>
 
                 {{-- ===========================
-                     KOLOM KANAN: DETAIL PEMBAYARAN 
+                     KOLOM KANAN: DETAIL & UPLOAD 
                 ============================ --}}
-                <div>
-                    <h4 class="text-lg font-bold text-gray-800 mb-4">Detail Pembayaran</h4>
-
-                    <div class="space-y-3 text-gray-600">
-                        <div class="flex justify-between">
-                            <span class="font-medium">Lapangan:</span>
-                            <span class="font-semibold text-gray-900">{{ $lapangan->nama_lapangan }}</span>
-                        </div>
-                        <div class="flex justify-between">
-                            <span class="font-medium">Tanggal:</span>
-                            <span class="font-semibold text-gray-900">{{ \Carbon\Carbon::parse($tanggal)->format('d M Y') }}</span>
-                        </div>
-                        <div class="flex justify-between">
-                            <span class="font-medium">Jam:</span>
-                            <span class="font-semibold text-gray-900">{{ $jam_mulai }} - {{ $jam_selesai }}</span>
-                        </div>
-                        <div class="flex justify-between">
-                            <span class="font-medium">Durasi:</span>
-                            <span class="font-semibold text-gray-900">{{ $durasi }} Jam</span>
-                        </div>
-                    </div>
-
-                    <hr class="my-4">
-
-                    <div class="space-y-3 text-gray-600">
-                        <div class="flex justify-between">
-                            <span>Harga / Jam</span>
-                            <span>Rp{{ number_format($lapangan->harga_perjam, 0, ',', '.') }}</span>
-                        </div>
-                        <div class="flex justify-between">
-                            <span>Subtotal ({{ $durasi }} jam)</span>
-                            <span>Rp{{ number_format($lapangan->harga_perjam * $durasi, 0, ',', '.') }}</span>
-                        </div>
-                        <div class="flex justify-between">
-                            <span>Biaya Admin</span>
-                            <span>Rp{{ number_format($admin, 0, ',', '.') }}</span>
-                        </div>
-                    </div>
-
-                    <hr class="my-4">
-
-                    <div class="flex justify-between items-center mb-5">
-                        <span class="text-xl font-extrabold text-gray-900">TOTAL BAYAR</span>
-                        <span class="text-2xl font-extrabold text-green-600">Rp{{ number_format($total, 0, ',', '.') }}</span>
-                    </div>
-
-                    {{-- Hidden Input --}}
-                    <input type="hidden" name="lapangan_id" value="{{ $lapangan->lapangan_id }}">
-                    <input type="hidden" name="tanggal" value="{{ $tanggal }}">
-                    <input type="hidden" name="jam_mulai" value="{{ $jam_mulai }}">
-                    <input type="hidden" name="jam_selesai" value="{{ $jam_selesai }}">
-                    <input type="hidden" name="total" value="{{ $total }}">
+                <div class="flex flex-col justify-between">
                     
-                    <hr class="my-6 border-gray-300">
+                    <div>
+                        <h4 class="text-lg font-bold text-gray-800 mb-4 border-b pb-2">Rincian Pesanan</h4>
 
-                    {{-- input gambar bukti pembayaran --}}
-                    <div class="mt-6">
+                        <div class="space-y-3 text-sm md:text-base">
+                            <div class="flex justify-between">
+                                <span class="text-gray-600">Lapangan</span>
+                                <span class="font-semibold text-gray-900 text-right">{{ $lapangan->nama_lapangan }}</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-gray-600">Tanggal</span>
+                                <span class="font-semibold text-gray-900">{{ \Carbon\Carbon::parse($tanggal)->format('d M Y') }}</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-gray-600">Jam Sewa</span>
+                                <span class="font-semibold text-gray-900">{{ date('H:i', strtotime($jam_mulai)) }} - {{ date('H:i', strtotime($jam_selesai)) }}</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-gray-600">Durasi</span>
+                                <span class="font-semibold text-gray-900">{{ $durasi }} Jam</span>
+                            </div>
+                        </div>
+
+                        <div class="bg-yellow-50 p-4 rounded-lg mt-6 border border-yellow-100">
+                            <div class="space-y-2 text-sm">
+                                <div class="flex justify-between">
+                                    <span class="text-gray-600">Harga Sewa</span>
+                                    <span>Rp{{ number_format($lapangan->harga_perjam * $durasi, 0, ',', '.') }}</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span class="text-gray-600">Biaya Admin</span>
+                                    <span>Rp{{ number_format($admin, 0, ',', '.') }}</span>
+                                </div>
+                                <div class="border-t border-yellow-200 my-2 pt-2 flex justify-between items-center">
+                                    <span class="text-base font-bold text-gray-800">TOTAL BAYAR</span>
+                                    <span class="text-xl font-extrabold text-green-600">Rp{{ number_format($total, 0, ',', '.') }}</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mt-8">
                         <label class="block font-semibold text-gray-700 mb-2">Upload Bukti Pembayaran</label>
-
-                        <input type="file" 
-                            name="bukti_pembayaran"
-                            accept="image/*"
-                            required
-                            class="w-full p-2 border rounded-lg bg-gray-50 focus:ring-2 focus:ring-green-400" />
                         
-                        <p class="text-xs text-gray-500 mt-1">Format: JPG, PNG (max 2MB)</p>
-                    </div>
+                        <div class="relative">
+                            <input type="file" 
+                                name="bukti_pembayaran"
+                                accept="image/*"
+                                required
+                                class="block w-full text-sm text-gray-500
+                                file:mr-4 file:py-3 file:px-4
+                                file:rounded-lg file:border-0
+                                file:text-sm file:font-semibold
+                                file:bg-green-50 file:text-green-700
+                                hover:file:bg-green-100
+                                border border-gray-300 rounded-lg cursor-pointer bg-gray-50 focus:outline-none
+                                " 
+                            />
+                        </div>
+                        <p class="text-xs text-gray-500 mt-1">*Format: JPG, PNG (Max 2MB)</p>
 
-                    <button type="submit" class="mt-5 w-full py-3 bg-green-600 text-white font-semibold rounded-lg shadow-md hover:bg-green-700">
-                        Konfirmasi dan Bayar
-                    </button>
-                    
-                    <p class="text-sm text-red-500 mt-2 text-center">
-                        Pastikan data sudah valid
-                    </p>
+                        <input type="hidden" name="lapangan_id" value="{{ $lapangan->lapangan_id }}">
+                        <input type="hidden" name="tanggal" value="{{ $tanggal }}">
+                        <input type="hidden" name="jam_mulai" value="{{ $jam_mulai }}">
+                        <input type="hidden" name="jam_selesai" value="{{ $jam_selesai }}">
+                        <input type="hidden" name="total" value="{{ $total }}">
+
+                        <button type="submit" class="mt-6 w-full py-4 bg-green-600 text-white font-bold rounded-xl shadow-lg hover:bg-green-700 transition transform hover:-translate-y-1">
+                            Konfirmasi Pembayaran
+                        </button>
+                    </div>
 
                 </div>
-
             </div>
-
         </form>
     </div>
-
 </div>
 
 @endsection

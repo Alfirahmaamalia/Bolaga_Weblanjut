@@ -66,8 +66,14 @@ Route::middleware(['auth', 'role:penyewa'])->prefix('penyewa')->name('penyewa.')
     Route::get('/booking/pembayaran/{booking}', [BookingController::class, 'pembayaran'])->name('booking.pembayaran');
     Route::post('/booking/konfirmasi-pembayaran/{booking}', [BookingController::class, 'konfirmasiPembayaran'])->name('booking.konfirmasi-pembayaran');
 
+    // Pembatalan booking
+    Route::post('/booking/batal/{booking}', [BookingController::class, 'batalkanBooking'])->name('booking.batal');
+
     // Riwayat
     Route::get('/riwayat', [BookingController::class, 'riwayat'])->name('riwayat');
+
+    // Cek Jadwal
+    Route::get('/cek-jadwal', [LapanganController::class, 'cekJadwal'])->name('cek.jadwal');
 
     // Cek Slot
     Route::get('/cek-slot', [LapanganController::class, 'cekSlot'])->name('cekSlot');

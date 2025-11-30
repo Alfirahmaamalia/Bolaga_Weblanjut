@@ -11,13 +11,33 @@ class RoleMiddleware
 {
     /**
      * Handle an incoming request.
-     *
-     * @param  \Closure(\Illuminate\Http\Request): (\Symfony\Component\HttpFoundation\Response)  $next
      */
     public function handle(Request $request, Closure $next, $role): Response
     {
-        if (!auth()->check() || auth()->user()->role !== $role) {
-            abort(403, 'Anda tidak memiliki akses ke halaman ini.');
+        // 1. Cek apakah user sudah login
+        if (!Auth::check()) {
+            return redirect()->route('login');
+        }
+
+        $user = Auth::user();
+
+        // 2. Cek apakah role user SAAT INI sesuai dengan role yang DIMINTA route ($role)
+        if ($user->role !== $role) {
+            
+            // LOGIKA REDIRECT:
+            // Jika role tidak cocok, kita cek role aslinya apa, 
+            // lalu lempar ke dashboard masing-masing.
+
+            if ($user->role === 'penyedia') {
+                return redirect()->route('penyedia.dashboard');
+            } 
+            
+            if ($user->role === 'penyewa') {
+                return redirect()->route('penyewa.dashboard');
+            }
+
+            // Opsional: Jika role tidak dikenali sama sekali (default fallback)
+            return redirect()->route('beranda');
         }
 
         return $next($request);

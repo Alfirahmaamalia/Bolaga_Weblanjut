@@ -18,7 +18,6 @@ class booking extends Model
         'tanggal',
         'jam',
         'total_harga',
-        'metode_pembayaran',
         'status',
     ];
 

@@ -18,7 +18,6 @@ return new class extends Migration
         $table->foreignId('penyewa_id')->constrained('users', 'user_id')->cascadeOnDelete();
         $table->date('tanggal');
         $table->integer('total_harga');
-        $table->string('metode_pembayaran')->nullable();
         $table->string('bukti_pembayaran')->nullable();
         $table->string('status');
         $table->timestamps();

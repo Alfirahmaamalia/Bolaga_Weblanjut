@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\JamOperasional;
 use Illuminate\Http\Request;
 use App\Models\Lapangan;
 use Illuminate\Support\Facades\Storage;
@@ -51,18 +52,19 @@ class LapanganController extends Controller
     // ==========================
     public function detail($id)
     {
-        // Ambil dari database
-        $lapangan = Lapangan::where('lapangan_id', $id)->firstOrFail();
+        // UPDATE DI SINI:
+        // Gunakan 'with' untuk mengambil relasi jam_operasional
+        // Kita urutkan berdasarkan 'hari' (0 = Minggu, 1 = Senin, dst)
+        $lapangan = Lapangan::with(['jam_operasional' => function($query) {
+            $query->orderBy('hari', 'asc');
+        }])->where('lapangan_id', $id)->firstOrFail();
 
-        // Jika fasilitas disimpan sebagai string JSON → decode
+        // Logika JSON fasilitas (tetap sama seperti kodemu)
         if (is_string($lapangan->fasilitas)) {
             $decoded = json_decode($lapangan->fasilitas, true);
-
-            // Kalau JSON valid → pakai JSON
             if (json_last_error() === JSON_ERROR_NONE && is_array($decoded)) {
                 $lapangan->fasilitas = $decoded;
             } else {
-                // fallback kalau ternyata dipisah koma
                 $lapangan->fasilitas = array_map('trim', explode(',', $lapangan->fasilitas));
             }
         }
@@ -149,6 +151,36 @@ class LapanganController extends Controller
         return redirect()->route('penyedia.kelolalapangan')->with('success', 'Lapangan berhasil dihapus.');
     }
 
+    public function cekJadwal(Request $request)
+    {
+        $request->validate([
+            'lapangan_id' => 'required',
+            'tanggal' => 'required|date',
+        ]);
+
+        // 1. Cari tahu hari apa (0=Minggu, 1=Senin, dst)
+        $hariKe = \Carbon\Carbon::parse($request->tanggal)->dayOfWeek;
+
+        // 2. Ambil jadwal dari database
+        $lapangan = Lapangan::find($request->lapangan_id);
+        $jadwal = $lapangan->jam_operasional()->where('hari', $hariKe)->first();
+
+        // 3. Cek Libur
+        if (!$jadwal || $jadwal->is_libur) {
+            return response()->json([
+                'status' => 'libur',
+                'message' => 'Maaf, lapangan libur pada tanggal tersebut.'
+            ]);
+        }
+
+        // 4. Jika Buka, kirim jam operasionalnya
+        return response()->json([
+            'status' => 'buka',
+            'jam_buka' => \Carbon\Carbon::parse($jadwal->jam_buka)->format('H:i'),
+            'jam_tutup' => \Carbon\Carbon::parse($jadwal->jam_tutup)->format('H:i'),
+        ]);
+    }
+
     // ---
 
     // =====================================================
@@ -173,6 +205,7 @@ class LapanganController extends Controller
         $ada = DB::table('booking')
         ->where('lapangan_id', $r->lapangan_id)
         ->where('tanggal', $r->tanggal)
+        ->where('status', '!=', 'gagal')
         ->where(function($q) use ($jamMulai, $jamSelesai) {
             $q->where('jam_mulai', '<', $jamSelesai)
               ->where('jam_selesai', '>', $jamMulai);

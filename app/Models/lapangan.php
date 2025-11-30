@@ -23,6 +23,9 @@ class Lapangan extends Model
         'deskripsi',
         'fasilitas',
         'foto',
+        'qrcode_qris',
+        'nama_qris',
+        'nmid',
         'aktif',
     ];
 
@@ -30,4 +33,18 @@ class Lapangan extends Model
         'aktif' => 'boolean',
         'fasilitas' => 'array',
     ];
+
+    public function jam_operasional()
+    {
+        return $this->hasMany(JamOperasional::class, 'lapangan_id');
+    }
+
+    /**
+     * Helper untuk mengambil jadwal hari ini/spesifik
+     * @param int $hari (0-6)
+     */
+    public function getJadwal($hari)
+    {
+        return $this->jam_operasional()->where('hari', $hari)->first();
+    }
 }

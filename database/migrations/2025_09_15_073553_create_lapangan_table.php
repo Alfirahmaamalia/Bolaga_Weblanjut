@@ -21,6 +21,9 @@ return new class extends Migration
             $table->text('deskripsi')->nullable();
             $table->json('fasilitas')->nullable();
             $table->string('foto')->nullable();
+            $table->string('qrcode_qris')->nullable();
+            $table->string('nama_qris')->nullable();
+            $table->string('nmid')->nullable();
             $table->boolean('aktif')->default(true);
             $table->timestamps();
         });

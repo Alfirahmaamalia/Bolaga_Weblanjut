@@ -6,38 +6,47 @@ use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Auth;
 use App\Models\Lapangan;
 use App\Models\Booking;
+use Carbon\Carbon;
 
 class BookingController extends Controller
 {
     public function konfirmasi(Request $r)
     {
-        // GUARD CLAUSE: Pastikan parameter esensial ada
+        // 1. GUARD CLAUSE: Pastikan parameter esensial ada
         if (!$r->filled(['lapangan_id', 'tanggal', 'jam_mulai', 'jam_selesai'])) {
             return redirect()->route('penyewa.dashboard')
-            ->withErrors('Booking dibatalkan. Harap pilih lapangan, tanggal, jam mulai, dan jam selesai yang valid.');
+                ->withErrors('Booking dibatalkan. Data tidak lengkap.');
         }
 
-        // Ambil data lapangan dari database
+        // 2. Ambil data lapangan
         $lapangan = Lapangan::findOrFail($r->lapangan_id);
 
-        // Hitung durasi penyewaan dari jam mulai dan selesai
-        $availableTimes = ['08:00', '09:00', '10:00', '11:00', '12:00', '13:00', '14:00', '15:00', '16:00', '17:00'];
-        $startIndex = array_search($r->jam_mulai, $availableTimes);
-        $endIndex = array_search($r->jam_selesai, $availableTimes);
-        
-        if ($startIndex === false || $endIndex === false) {
-            return redirect()->route('penyewa.dashboard')
-            ->withErrors('Jam mulai atau jam selesai tidak valid.');
-        }
-        
-        $durasi_jam = $endIndex - $startIndex;
+        // 3. LOGIKA BARU: Hitung durasi menggunakan Carbon (Bukan Array Manual)
+        try {
+            $start = Carbon::parse($r->jam_mulai);
+            $end = Carbon::parse($r->jam_selesai);
 
+            // Validasi: Jam selesai harus setelah jam mulai
+            if ($end->lessThanOrEqualTo($start)) {
+                return redirect()->route('penyewa.dashboard')
+                    ->withErrors('Jam selesai harus lebih besar dari jam mulai.');
+            }
+
+            // Hitung selisih jam
+            $durasi_jam = $start->diffInHours($end);
+
+        } catch (\Exception $e) {
+            return redirect()->route('penyewa.dashboard')
+                ->withErrors('Format jam tidak valid.');
+        }
+
+        // 4. Validasi Durasi (Mencegah durasi 0 atau minus)
         if ($durasi_jam <= 0) {
             return redirect()->route('penyewa.dashboard')
-            ->withErrors('Jam selesai harus setelah jam mulai.');
+                ->withErrors('Durasi sewa minimal 1 jam.');
         }
 
-        // Hitung total (harga per jam × durasi + admin)
+        // 5. Hitung total (harga per jam × durasi + admin)
         $admin = 5000;
         $harga_total = $lapangan->harga_perjam * $durasi_jam;
         $total = $harga_total + $admin;
@@ -62,7 +71,6 @@ class BookingController extends Controller
         $booking->jam_mulai = $request->jam_mulai;
         $booking->jam_selesai = $request->jam_selesai;
         $booking->total_harga = $request->total;
-        $booking->metode_pembayaran = $request->metode_pembayaran;
         $booking->status = 'belum bayar';
         $booking->save();
         // dd($booking->jam);
@@ -73,12 +81,9 @@ class BookingController extends Controller
     public function pembayaran(Booking $booking)
     {
         $lapangan = Lapangan::findOrFail($booking->lapangan_id);
-        $availableTimes = ['08:00', '09:00', '10:00', '11:00', '12:00', '13:00', '14:00', '15:00', '16:00', '17:00'];
-        $jamMulai = date('H:i', strtotime($booking->jam_mulai));
-        $jamSelesai = date('H:i', strtotime($booking->jam_selesai));
-        $startIndex = array_search($jamMulai, $availableTimes);
-        $endIndex = array_search($jamSelesai, $availableTimes);
-        $durasi = $endIndex - $startIndex;
+        $start = Carbon::parse($booking->jam_mulai);
+        $end = Carbon::parse($booking->jam_selesai);
+        $durasi = $start->diffInHours($end);
         $admin = 5000;
         $harga_total = $lapangan->harga_perjam * $durasi;
         $total = $harga_total + $admin;
@@ -99,7 +104,6 @@ class BookingController extends Controller
     {
         // Validasi input
         $request->validate([
-            'metode_pembayaran' => 'required',
             'bukti_pembayaran' => 'required|image|mimes:jpg,jpeg,png|max:2048',
         ]);
 
@@ -121,11 +125,35 @@ class BookingController extends Controller
             $booking->bukti_pembayaran = 'storage/bukti/' . $namaFile;
         }
 
-        $booking->status = 'berhasil';
-        $booking->metode_pembayaran = $request->metode_pembayaran;
+        $booking->status = 'menunggu konfirmasi';
         $booking->save();
 
         return redirect()->route('penyewa.dashboard')->with('success', 'Pembayaran berhasil. Booking Anda telah dikonfirmasi.');
+    }
+
+    public function batalkanBooking($id)
+    {
+        // Cari data booking berdasarkan ID
+        $booking = \App\Models\Booking::findOrFail($id);
+
+        // Validasi keamanan: Pastikan hanya booking milik user yang login yang bisa dibatalkan
+        if ($booking->penyewa_id !== auth()->id()) {
+            abort(403, 'Anda tidak berhak membatalkan booking ini.');
+        }
+
+        // Validasi status: Hanya yang 'belum bayar' yang boleh dibatalkan
+        if ($booking->status !== 'belum bayar') {
+            return back()->with('error', 'Booking tidak dapat dibatalkan karena status sudah berubah.');
+        }
+
+        // Update status menjadi 'gagal' (agar slot terbuka kembali sesuai logika cekSlot kamu sebelumnya)
+        // Atau bisa gunakan 'dibatalkan' jika kamu ingin membedakan statusnya.
+        // Disini saya pakai 'gagal' supaya konsisten dengan logika cekSlot kamu tadi.
+        $booking->update([
+            'status' => 'gagal' 
+        ]);
+
+        return back()->with('success', 'Booking berhasil dibatalkan.');
     }
 
     public function riwayat(Request $request, Booking $booking, Lapangan $lapangan)
