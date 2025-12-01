@@ -15,7 +15,7 @@ class Lapangan extends Model
     protected $keyType = 'int';
 
     protected $fillable = [
-        'user_id_penyedia',
+        'penyedia_id',
         'nama_lapangan',
         'jenis_olahraga',
         'harga_perjam',

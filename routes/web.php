@@ -6,6 +6,7 @@ use Illuminate\Support\Facades\Auth;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\LapanganController;
 use App\Http\Controllers\BookingController;
+use App\Http\Controllers\PenyediaController;
 
 // -------------------------------------------------
 // ROOT
@@ -88,11 +89,11 @@ Route::middleware(['auth', 'role:penyewa'])->prefix('penyewa')->name('penyewa.')
 Route::middleware(['auth', 'role:penyedia'])->prefix('penyedia')->name('penyedia.')->group(function () {
 
     // Dashboard Penyedia
-    Route::get('/dashboard', [BookingController::class, 'dashboard'])
+    Route::get('/dashboard', [PenyediaController::class, 'dashboard'])
         ->name('dashboard');
 
     // Manajemen Booking
-    Route::get('/manajemen-booking', [BookingController::class, 'manajemenBooking'])
+    Route::get('/manajemen-booking', [PenyediaController::class, 'manajemenBooking'])
         ->name('manajemenbooking');
 
     // Form tambah lapangan
@@ -100,7 +101,7 @@ Route::middleware(['auth', 'role:penyedia'])->prefix('penyedia')->name('penyedia
         ->name('lapangan.create');
 
     // Kelola Lapangan
-    Route::get('/kelola-lapangan', [LapanganController::class, 'kelolalapangan'])
+    Route::get('/kelola-lapangan', [PenyediaController::class, 'kelolalapangan'])
         ->name('kelolalapangan');
 
     // CRUD Lapangan

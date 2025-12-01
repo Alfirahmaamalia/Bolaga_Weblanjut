@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use App\Models\Lapangan;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Auth;
 use Carbon\Carbon;
 
 class LapanganController extends Controller
@@ -78,83 +79,147 @@ class LapanganController extends Controller
     // FUNGSI PENYEDIA
     // ==========================
 
-    public function kelolalapangan()
+    // --- 1. FORM CREATE ---
+    public function create()
     {
-        $lapangan = Lapangan::where('user_id_penyedia', auth()->id())->get();
-        return view('penyedia.kelolalapangan', compact('lapangan'));
+        return view('penyedia.tambah_lapangan');
     }
 
+    // --- 2. FORM EDIT ---
+    public function edit($id)
+    {
+        // Ambil data lapangan & jadwalnya
+        $lapangan = Lapangan::with('jam_operasional')
+            ->where('lapangan_id', $id)
+            ->where('penyedia_id', Auth::id())
+            ->firstOrFail();
+
+        // Decode fasilitas agar tidak error di view
+        if (is_string($lapangan->fasilitas)) {
+            $decoded = json_decode($lapangan->fasilitas, true);
+            $lapangan->fasilitas = (json_last_error() === JSON_ERROR_NONE && is_array($decoded)) 
+                ? $decoded : [];
+        }
+
+        return view('penyedia.editlapangan', compact('lapangan'));
+    }
+
+    // --- 3. PROSES SIMPAN (STORE) ---
     public function store(Request $request)
     {
-        $v = $request->validate([
-            'nama_lapangan' => 'required|string|max:255',
-            'jenis_olahraga' => 'required|string|max:255',
-            'lokasi' => 'required|string|max:255',
-            'deskripsi' => 'required|string',
-            'harga_perjam' => 'required|integer|min:0',
-            'foto' => 'nullable|image|max:2048',
-            'aktif' => 'sometimes|boolean',
-        ]);
-
-        $v['penyedia_id'] = auth()->id();
-        $v['aktif'] = $request->boolean('aktif');
-
-        if ($request->hasFile('foto')) {
-            $v['foto'] = 'storage/' . $request->file('foto')->store('lapangan', 'public');
-        } else {
-            $v['foto'] = 'images/lapangan.jpg';
-        }
-
-        Lapangan::create($v);
-        return redirect()->route('penyedia.kelolalapangan')->with('success', 'Lapangan berhasil ditambahkan.');
+        // Copy-paste validasi & logic store dari kodemu yang terakhir
+        // (Kode yang kamu kirim sudah benar untuk bagian ini)
+        // ...
+        // PASTIKAN kamu menggunakan DB::beginTransaction()
     }
 
-    public function create()
-{
-    return view('penyedia.tambah_lapangan');
-}
-
-
+    // --- 4. PROSES UPDATE (UPDATE) ---
     public function update(Request $request, $id)
     {
-        // Mencari berdasarkan kolom 'id' (Primary Key)
-        $lap = Lapangan::where('lapangan_id', $id)->where('penyedia_id', auth()->id())->firstOrFail();
+        $lapangan = Lapangan::where('lapangan_id', $id)->where('penyedia_id', Auth::id())->firstOrFail();
 
-        $v = $request->validate([
-            'nama_lapangan' => 'required|string|max:255',
-            'jenis_olahraga' => 'required|string|max:255',
-            'lokasi' => 'required|string|max:255',
-            'deskripsi' => 'required|string',
-            'harga_perjam' => 'required|integer|min:0',
-            'foto' => 'nullable|image|max:2048',
-            'aktif' => 'sometimes|boolean',
+        $request->validate([
+            'nama_lapangan'  => 'required|string|max:255',
+            'jenis_olahraga' => 'required|string',
+            'harga_perjam'   => 'required|numeric|min:0',
+            'lokasi'         => 'required|string',
+            'deskripsi'      => 'required|string',
+            'fasilitas'      => 'nullable|array',
+            'foto'           => 'nullable|image|max:2048',       // Nullable untuk update
+            'qrcode_qris'    => 'nullable|image|max:2048',       // Nullable untuk update
+            'nama_qris'      => 'required|string|max:255',
+            'nmid'           => 'required|string|max:20',
+            'jadwal'         => 'required|array',
         ]);
 
-        $v['penyedia_id'] = auth()->id();
-        $v['aktif'] = $request->boolean('aktif');
+        try {
+            DB::beginTransaction();
 
-        if ($request->hasFile('foto')) {
-            if ($lap->foto && Storage::disk('public')->exists($lap->foto)) {
-                Storage::disk('public')->delete($lap->foto);
+            // Logic Foto (Hapus lama jika ada baru)
+            if ($request->hasFile('foto')) {
+                if ($lapangan->foto && Storage::disk('public')->exists($lapangan->foto)) {
+                    Storage::disk('public')->delete($lapangan->foto); // Hapus file lama
+                }
+                // Simpan baru (gunakan storeAs agar nama file bersih)
+                $file = $request->file('foto');
+                $filename = 'lapangan_' . time() . '.' . $file->getClientOriginalExtension();
+                $file->storeAs('images', $filename, 'public'); 
+                $lapangan->foto = 'storage/images/' . $filename;
             }
-            $v['foto'] = $request->file('foto')->store('lapangan', 'public');
-        }
 
-        $lap->update($v);
-        return redirect()->route('penyedia.kelolalapangan')->with('success', 'Lapangan diperbarui.');
+            // Logic QRIS (Hapus lama jika ada baru)
+            if ($request->hasFile('qrcode_qris')) {
+                if ($lapangan->qrcode_qris && Storage::disk('public')->exists($lapangan->qrcode_qris)) {
+                    Storage::disk('public')->delete($lapangan->qrcode_qris);
+                }
+                $file = $request->file('qrcode_qris');
+                $filename = 'qris_' . time() . '.' . $file->getClientOriginalExtension();
+                $file->storeAs('images', $filename, 'public');
+                $lapangan->qrcode_qris = 'storage/images/' . $filename;
+            }
+
+            // Update Data Utama
+            $fasilitasClean = array_filter($request->fasilitas ?? [], fn($v) => !is_null($v) && $v !== '');
+            
+            $lapangan->update([
+                'nama_lapangan'  => $request->nama_lapangan,
+                'jenis_olahraga' => $request->jenis_olahraga,
+                'harga_perjam'   => $request->harga_perjam,
+                'lokasi'         => $request->lokasi,
+                'deskripsi'      => $request->deskripsi,
+                'fasilitas'      => json_encode(array_values($fasilitasClean)),
+                'nama_qris'      => $request->nama_qris,
+                'nmid'           => $request->nmid,
+                'aktif'          => $request->has('aktif'), // Handle checkbox
+            ]);
+
+            // Update Jadwal (Hapus Lama -> Buat Baru)
+            JamOperasional::where('lapangan_id', $lapangan->lapangan_id)->delete();
+
+            foreach ($request->jadwal as $hari => $data) {
+                $isLibur = isset($data['libur']);
+                JamOperasional::create([
+                    'lapangan_id' => $lapangan->lapangan_id,
+                    'hari'        => $hari,
+                    'jam_buka'    => $isLibur ? null : ($data['buka'] ?? null),
+                    'jam_tutup'   => $isLibur ? null : ($data['tutup'] ?? null),
+                    'is_libur'    => $isLibur,
+                ]);
+            }
+
+            DB::commit();
+            return redirect()->route('penyedia.kelolalapangan')->with('success', 'Lapangan berhasil diperbarui!');
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return back()->withErrors(['msg' => 'Gagal update: ' . $e->getMessage()])->withInput();
+        }
     }
 
     public function destroy($id)
     {
-        // Mencari berdasarkan kolom 'id' (Primary Key)
-        $lap = Lapangan::where('lapangan_id', $id)->where('penyedia_id', auth()->id())->firstOrFail();
+        // 1. Cari data
+        $lap = Lapangan::where('lapangan_id', $id)
+            ->where('penyedia_id', Auth::id())
+            ->firstOrFail();
 
-        if ($lap->foto && Storage::disk('public')->exists($lap->foto)) {
-            Storage::disk('public')->delete($lap->foto);
+        // 2. Hapus File Foto (Jika ada)
+        if ($lap->foto && Storage::disk('public')->exists(str_replace('storage/', '', $lap->foto))) {
+            Storage::disk('public')->delete(str_replace('storage/', '', $lap->foto));
         }
 
+        // 3. Hapus File QRIS (Jika ada) - Tambahan agar bersih
+        if ($lap->qrcode_qris && Storage::disk('public')->exists(str_replace('storage/', '', $lap->qrcode_qris))) {
+            Storage::disk('public')->delete(str_replace('storage/', '', $lap->qrcode_qris));
+        }
+
+        // 4. Hapus Data dari Database (Permanen)
+        // Karena kita sudah set 'onDelete cascade' di migration jam_operasional,
+        // maka jadwal terkait otomatis ikut terhapus di database.
         $lap->delete();
-        return redirect()->route('penyedia.kelolalapangan')->with('success', 'Lapangan berhasil dihapus.');
+
+        return redirect()->route('penyedia.kelolalapangan')
+            ->with('success', 'Lapangan berhasil dihapus secara permanen.');
     }
 
     public function cekJadwal(Request $request)
