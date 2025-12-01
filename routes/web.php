@@ -90,10 +90,6 @@ Route::middleware(['auth', 'role:penyedia'])->prefix('penyedia')->name('penyedia
     Route::get('/dashboard', [PenyediaController::class, 'dashboard'])
         ->name('dashboard');
 
-    // Manajemen Booking
-    Route::get('/manajemen-booking', [PenyediaController::class, 'manajemenBooking'])
-        ->name('manajemenbooking');
-
     // Form tambah lapangan
     Route::get('/lapangan/tambah', [LapanganController::class, 'create'])
         ->name('lapangan.create');
@@ -114,6 +110,17 @@ Route::middleware(['auth', 'role:penyedia'])->prefix('penyedia')->name('penyedia
 
     Route::delete('/lapangan/{lapangan}', [LapanganController::class, 'destroy'])
         ->name('lapangan.destroy');
+
+
+    // Manajemen Booking
+    Route::get('/manajemen-booking', [PenyediaController::class, 'manajemenBooking'])
+        ->name('manajemenbooking');
+
+    Route::post('/manajemen-booking/konfirmasi/{booking}', [PenyediaController::class, 'konfirmasiBooking'])
+        ->name('manajemenbooking.konfirmasi');
+
+    Route::post('/manajemen-booking/batalkan/{booking}', [PenyediaController::class, 'batalkanBooking'])
+        ->name('manajemenbooking.batalkan');
 });
 
 // -------------------------------------------------

@@ -8,6 +8,7 @@ use App\Models\Lapangan;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Str;
 use Carbon\Carbon;
 
 class LapanganController extends Controller
@@ -106,12 +107,109 @@ class LapanganController extends Controller
 
     // --- 3. PROSES SIMPAN (STORE) ---
     public function store(Request $request)
-    {
-        // Copy-paste validasi & logic store dari kodemu yang terakhir
-        // (Kode yang kamu kirim sudah benar untuk bagian ini)
-        // ...
-        // PASTIKAN kamu menggunakan DB::beginTransaction()
+{
+    // 1. Validasi Input
+    $request->validate([
+        'nama_lapangan' => 'required|string|max:255',
+        'jenis_olahraga' => 'required|string',
+        'harga_perjam' => 'required|numeric|min:0',
+        'lokasi' => 'required|string',
+        'deskripsi' => 'required|string',
+        'foto' => 'required|image|mimes:jpeg,png,jpg|max:2048',
+        'fasilitas' => 'nullable|array',
+        'jadwal' => 'required|array',
+        'nama_qris' => 'required|string',
+        'nmid' => 'required|string',
+        'qrcode_qris' => 'required|image|mimes:jpeg,png,jpg|max:2048',
+    ]);
+
+    DB::beginTransaction();
+
+    try {
+        // 2. Upload Foto Lapangan (Logika Baru)
+        $fotoPath = null;
+        if ($request->hasFile('foto')) {
+            $file = $request->file('foto');
+            $ext = $file->getClientOriginalExtension();
+            $namaFileFoto = Str::uuid() . '.' . $ext;
+            
+            // Simpan fisik file ke: storage/app/public/lapangan/namaunik.jpg
+            $file->storeAs('lapangan', $namaFileFoto, 'public');
+
+            // String untuk database: storage/lapangan/namaunik.jpg
+            $fotoPath = 'storage/lapangan/' . $namaFileFoto;
+        }
+
+        // 3. Upload QRIS (Logika Baru)
+        $qrisPath = null;
+        if ($request->hasFile('qrcode_qris')) {
+            $fileQris = $request->file('qrcode_qris');
+            $extQris = $fileQris->getClientOriginalExtension();
+            $namaFileQris = Str::uuid() . '.' . $extQris;
+
+            // Simpan fisik file ke: storage/app/public/qris/namaunik.jpg
+            $fileQris->storeAs('qris', $namaFileQris, 'public');
+
+            // String untuk database: storage/qris/namaunik.jpg
+            $qrisPath = 'storage/qris/' . $namaFileQris;
+        }
+
+        // 4. Simpan Data Lapangan
+        $lapangan = Lapangan::create([
+            'penyedia_id' => Auth::id(),
+            'nama_lapangan' => $request->nama_lapangan,
+            'jenis_olahraga' => $request->jenis_olahraga,
+            'harga_perjam' => $request->harga_perjam,
+            'lokasi' => $request->lokasi,
+            'deskripsi' => $request->deskripsi,
+            
+            'foto' => $fotoPath, // Path sudah format 'storage/...'
+            'fasilitas' => $request->fasilitas,
+            'nama_qris' => $request->nama_qris,
+            'nmid' => $request->nmid,
+            'qrcode_qris' => $qrisPath, // Path sudah format 'storage/...'
+            'aktif' => true,
+        ]);
+
+        // 5. Simpan Jam Operasional
+        foreach ($request->jadwal as $index => $jadwalData) {
+            $isLibur = isset($jadwalData['libur']);
+            $jamBuka = $jadwalData['buka'] ?? null;
+            $jamTutup = $jadwalData['tutup'] ?? null;
+
+            JamOperasional::create([
+                'lapangan_id' => $lapangan->lapangan_id, 
+                'hari' => $index,
+                'jam_buka' => $isLibur ? null : $jamBuka,
+                'jam_tutup' => $isLibur ? null : $jamTutup,
+                'is_libur' => $isLibur,
+            ]);
+        }
+
+        DB::commit();
+
+        return redirect()->route('penyedia.kelolalapangan')->with('success', 'Lapangan berhasil ditambahkan!');
+
+    } catch (\Exception $e) {
+        DB::rollBack();
+
+        // Hapus file jika gagal simpan DB
+        // Karena path di variabel sekarang ada prefix 'storage/', kita harus hapus dulu prefixnya
+        // agar Storage::disk('public')->delete() bisa menemukannya.
+        
+        if ($fotoPath) {
+            $realPathFoto = str_replace('storage/', '', $fotoPath);
+            Storage::disk('public')->delete($realPathFoto);
+        }
+
+        if ($qrisPath) {
+            $realPathQris = str_replace('storage/', '', $qrisPath);
+            Storage::disk('public')->delete($realPathQris);
+        }
+
+        return back()->withInput()->withErrors(['msg' => 'Gagal menyimpan data: ' . $e->getMessage()]);
     }
+}
 
     // --- 4. PROSES UPDATE (UPDATE) ---
     public function update(Request $request, $id)

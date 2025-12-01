@@ -1,4 +1,4 @@
-@extends('layouts.app')
+@extends('layouts.navbarPenyedia')
 
 @section('title', 'Tambah Lapangan Baru')
 
