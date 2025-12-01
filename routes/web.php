@@ -7,6 +7,7 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\LapanganController;
 use App\Http\Controllers\BookingController;
 use App\Http\Controllers\PenyediaController;
+use App\Http\Controllers\AdminController;
 
 // -------------------------------------------------
 // ROOT
@@ -20,10 +21,7 @@ Route::get('/', function () {
     return redirect()->route('login');
 });
 
-// -------------------------------------------------
-// HALAMAN BERANDA PUBLIK
-// -------------------------------------------------
-Route::get('/beranda', fn() => view('beranda'))->name('beranda');
+
 
 // -------------------------------------------------
 // LOGIN + REGISTER (Guest Only)
@@ -116,4 +114,22 @@ Route::middleware(['auth', 'role:penyedia'])->prefix('penyedia')->name('penyedia
 
     Route::delete('/lapangan/{lapangan}', [LapanganController::class, 'destroy'])
         ->name('lapangan.destroy');
+});
+
+// -------------------------------------------------
+// RUTE ADMIN (role: admin)
+// -------------------------------------------------
+Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->group(function () {
+
+    // Dashboard Admin
+    Route::get('/dashboard', [AdminController::class, 'dashboard'])->name('dashboard');
+
+    // Edit User
+    Route::get('/user/{id}/edit', [AdminController::class, 'edit'])->name('edit');
+    Route::put('/user/{id}', [AdminController::class, 'update'])->name('update');
+
+    // Delete User
+    Route::get('/user/{id}/delete', [AdminController::class, 'delete'])->name('delete');
+    Route::delete('/user/{id}', [AdminController::class, 'destroy'])->name('destroy');
+
 });

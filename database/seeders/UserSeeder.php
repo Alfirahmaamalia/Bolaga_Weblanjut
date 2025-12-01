@@ -62,5 +62,12 @@ class UserSeeder extends Seeder
             'password' => Hash::make('penyewa123'),
             'role' => 'penyewa',
         ]);
+        
+        User::create([
+            'nama' => 'Admin User',
+            'email' => 'admin@bolaga.com',
+            'password' => Hash::make('admin123'),
+            'role' => 'admin',
+        ]);
     }
 }

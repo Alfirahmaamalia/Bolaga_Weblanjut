@@ -36,8 +36,12 @@ class RoleMiddleware
                 return redirect()->route('penyewa.dashboard');
             }
 
+            if ($user->role === 'admin') {
+                return redirect()->route('admin.dashboard');
+            }
+
             // Opsional: Jika role tidak dikenali sama sekali (default fallback)
-            return redirect()->route('beranda');
+            return redirect()->route('login');
         }
 
         return $next($request);
