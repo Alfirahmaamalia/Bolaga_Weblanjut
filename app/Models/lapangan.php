@@ -49,8 +49,8 @@ class Lapangan extends Model
     }
 
     public function user()
-{
-    return $this->belongsTo(User::class, 'user_id');
-}
+    {
+        return $this->belongsTo(User::class, 'penyedia_id', 'user_id');
+    }
 
 }

@@ -59,9 +59,10 @@
                     @php
                         // Menentukan warna badge berdasarkan status string
                         $badgeClass = match($item->status) {
-                            'aktif' => 'bg-green-100 text-green-700',
-                            'non aktif' => 'bg-red-100 text-red-700',
-                            'menunggu validasi' => 'bg-yellow-100 text-yellow-700',
+                            'aktif' => 'bg-green-100 text-green-700',              // Hijau
+                            'menunggu validasi' => 'bg-yellow-100 text-yellow-700',  // Kuning
+                            'ditolak' => 'bg-red-100 text-red-700',                 // Merah (Baru)
+                            'non aktif' => 'bg-gray-200 text-gray-700',             // Abu-abu (Baru)
                             default => 'bg-gray-100 text-gray-700',
                         };
                     @endphp

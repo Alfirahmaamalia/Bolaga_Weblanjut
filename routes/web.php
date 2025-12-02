@@ -146,4 +146,10 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
     Route::get('/user/{id}/delete', [AdminController::class, 'delete'])->name('delete');
     Route::delete('/user/{id}', [AdminController::class, 'destroy'])->name('destroy');
 
+    Route::get('/lapangan', [AdminController::class, 'validasiLapangan'])->name('validasilapangan');
+
+    Route::patch('/lapangan/{id}/approve', [AdminController::class, 'approve'])->name('lapangan.approve');
+    Route::patch('/lapangan/{id}/reject', [AdminController::class, 'reject'])->name('lapangan.reject');
+    Route::delete('/lapangan/{id}', [LapanganController::class, 'destroy'])->name('lapangan.destroy');
+    Route::get('/lapangan/{id}', [AdminController::class, 'show'])->name('lapangan.show');
 });

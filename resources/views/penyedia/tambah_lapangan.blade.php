@@ -198,34 +198,56 @@
                     </div>
                 </div>
 
-                <div class="col-span-2 pt-2">
-                    <label class="block text-sm font-semibold text-gray-700 mb-2">Bukti Kepemilikan (PDF)</label>
+                <div class="bg-white p-6 rounded-xl shadow border border-gray-100">
+                    <h3 class="text-lg font-bold text-gray-800 mb-4">Bukti Kepemilikan (PDF)</h3>
                     
-                    <div class="flex items-center justify-center w-full relative">
-                        <label for="bukti_kepemilikan" class="flex flex-col items-center justify-center w-full h-32 border-2 border-gray-300 border-dashed rounded-lg cursor-pointer bg-gray-50 hover:bg-gray-100 transition relative z-10">
-                            <div class="flex flex-col items-center justify-center pt-5 pb-6">
-                                <svg class="w-8 h-8 mb-4 text-gray-500" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 16">
-                                    <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 13h3a3 3 0 0 0 0-6h-.025A5.56 5.56 0 0 0 16 6.5 5.5 5.5 0 0 0 5.207 5.021C5.137 5.017 5.071 5 5 5a4 4 0 0 0 0 8h2.167M10 15V6m0 0L8 8m2-2 2 2"/>
-                                </svg>
-                                <p class="mb-2 text-sm text-gray-500"><span class="font-semibold">Klik untuk upload</span></p>
-                                <p class="text-xs text-gray-500">Format PDF (Maks. 2MB)</p>
-                            </div>
-                            
-                            <input id="bukti_kepemilikan" 
-                                name="bukti_kepemilikan" 
-                                type="file" 
-                                accept="application/pdf" 
-                                required 
-                                onchange="updateFileName(this)"
-                                style="opacity: 0; position: absolute; inset: 0; width: 100%; height: 100%; cursor: pointer;" />
-                        </label>
-                    </div>
+                    <div class="relative w-full">
+                        
+                        <input id="bukti_kepemilikan" 
+                            name="bukti_kepemilikan" 
+                            type="file" 
+                            accept="application/pdf" 
+                            class="hidden" 
+                            required 
+                            onchange="handlePdfUpload(this)">
 
-                    <div id="file-name-container" class="mt-3 hidden bg-green-50 border border-green-200 text-green-700 px-4 py-2 rounded-lg flex items-center gap-2">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                            <path fill-rule="evenodd" d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4zm2 6a1 1 0 011-1h6a1 1 0 110 2H7a1 1 0 01-1-1zm1 3a1 1 0 100 2h6a1 1 0 100-2H7z" clip-rule="evenodd" />
-                        </svg>
-                        <span id="file-name-display" class="text-sm font-medium"></span>
+                        <div id="pdf-placeholder" 
+                            onclick="document.getElementById('bukti_kepemilikan').click()"
+                            class="border-2 border-dashed border-gray-300 rounded-lg p-6 flex flex-col items-center justify-center text-center hover:bg-gray-50 cursor-pointer transition h-48">
+                            
+                            <div class="p-4 bg-green-50 rounded-full mb-3">
+                                <svg class="w-8 h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                                </svg>
+                            </div>
+                            <p class="text-sm font-semibold text-gray-700">Klik untuk upload Bukti Kepemilikan</p>
+                            <p class="text-xs text-gray-500 mt-1">Format PDF (Maks. 2MB)</p>
+                        </div>
+
+                        <div id="pdf-preview-container" class="hidden border-2 border-green-500 border-dashed rounded-lg p-6 flex-col items-center justify-center text-center bg-green-50 h-48 relative">
+                            
+                            <svg class="w-12 h-12 text-red-500 mb-2" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4z" clip-rule="evenodd"/>
+                            </svg>
+
+                            <a id="pdf-preview-link" href="#" target="_blank" class="text-lg font-bold text-blue-700 hover:text-blue-900 hover:underline mb-1 truncate max-w-xs z-10 relative">
+                                nama_file.pdf
+                            </a>
+                            
+                            <p class="text-xs text-gray-500 mb-4">(Klik nama file untuk melihat isi)</p>
+
+                            <div class="flex gap-2 z-10 relative">
+                                <button type="button" onclick="document.getElementById('bukti_kepemilikan').click()" class="px-3 py-1 bg-white border border-gray-300 rounded text-sm text-gray-700 hover:bg-gray-100 shadow-sm">
+                                    Ganti File
+                                </button>
+                                <button type="button" onclick="resetPdfUpload()" class="px-3 py-1 bg-red-100 text-red-600 rounded text-sm hover:bg-red-200 shadow-sm">
+                                    Hapus
+                                </button>
+                            </div>
+
+                            <div class="absolute inset-0 opacity-10 bg-green-200 rounded-lg pointer-events-none"></div>
+                        </div>
+
                     </div>
                 </div>
 
@@ -265,6 +287,51 @@
             }
             reader.readAsDataURL(input.files[0]);
         }
+    }
+
+    function handlePdfUpload(input) {
+        const placeholder = document.getElementById('pdf-placeholder');
+        const previewContainer = document.getElementById('pdf-preview-container');
+        const previewLink = document.getElementById('pdf-preview-link');
+
+        if (input.files && input.files[0]) {
+            const file = input.files[0];
+
+            // Validasi tipe file harus PDF
+            if (file.type !== 'application/pdf') {
+                alert('Mohon upload file dengan format PDF.');
+                input.value = ''; // Reset input
+                return;
+            }
+
+            // 1. Buat Object URL untuk preview tanpa upload
+            const fileURL = URL.createObjectURL(file);
+
+            // 2. Set href link ke URL tersebut
+            previewLink.href = fileURL;
+            
+            // 3. Set teks nama file
+            previewLink.textContent = file.name;
+
+            // 4. Ubah tampilan UI (Sembunyikan placeholder, Tampilkan preview)
+            placeholder.classList.add('hidden');
+            previewContainer.classList.remove('hidden');
+            previewContainer.classList.add('flex');
+        }
+    }
+
+    function resetPdfUpload() {
+        const input = document.getElementById('bukti_kepemilikan');
+        const placeholder = document.getElementById('pdf-placeholder');
+        const previewContainer = document.getElementById('pdf-preview-container');
+
+        // Reset value input
+        input.value = '';
+
+        // Kembalikan tampilan ke awal
+        placeholder.classList.remove('hidden');
+        previewContainer.classList.add('hidden');
+        previewContainer.classList.remove('flex');
     }
 
     // --- 2. LOGIKA JAM OPERASIONAL (LIBUR) ---

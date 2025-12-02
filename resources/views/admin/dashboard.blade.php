@@ -1,4 +1,4 @@
-@extends('layouts.app')
+@extends('layouts.navbaradmin')
 
 @section('content')
 <div class="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 p-8">
@@ -64,7 +64,7 @@
             </a>
 
             <!-- Tombol Validasi Lapangan -->
-            <a href="#" class="group relative flex items-center gap-4 p-6 bg-white border border-slate-200 rounded-xl hover:border-emerald-500 hover:shadow-md transition-all duration-200">
+            <a href="{{ route('admin.validasilapangan') }}" class="group relative flex items-center gap-4 p-6 bg-white border border-slate-200 rounded-xl hover:border-emerald-500 hover:shadow-md transition-all duration-200">
                 <div class="w-12 h-12 bg-emerald-50 rounded-full flex items-center justify-center group-hover:bg-emerald-600 transition-colors duration-200">
                     <svg class="w-6 h-6 text-emerald-600 group-hover:text-white transition-colors duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>

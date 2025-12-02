@@ -1,8 +1,16 @@
-@extends('layouts.app')
+@extends('layouts.navbaradmin')
 
 @section('content')
 <div class="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 p-8">
     <div class="max-w-7xl mx-auto">
+        <!-- Tombol Kembali -->
+        <a href="{{ route('admin.dashboard') }}" class="inline-flex items-center text-gray-700 hover:text-black mb-4">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+            </svg>
+            Kembali
+        </a>
+
         <!-- Header & Action -->
         <div class="mb-8 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div>

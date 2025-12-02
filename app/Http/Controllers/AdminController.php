@@ -97,4 +97,71 @@ class AdminController extends Controller
 
         return redirect()->route('admin.dashboard')->with('success', 'User berhasil dihapus');
     }
+
+
+    public function validasiLapangan(Request $request)
+    {
+        // 1. Panggil relasi 'user' yang sudah diperbaiki di Model
+        $query = Lapangan::with('user'); 
+
+        // 2. Filter Status
+        if ($request->has('status') && $request->status != '') {
+            $query->where('status', $request->status);
+        }
+
+        // 3. Sorting (Sama seperti sebelumnya)
+        $lapangan = $query->orderByRaw("
+            CASE 
+                WHEN status = 'menunggu validasi' THEN 1
+                WHEN status = 'aktif' THEN 2
+                WHEN status = 'non aktif' THEN 3
+                WHEN status = 'ditolak' THEN 4
+                ELSE 5
+            END
+        ")
+        ->latest()
+        ->get();
+
+        return view('admin.validasilapangan', compact('lapangan'));
+    }
+
+    /**
+     * Menyetujui Lapangan
+     * Route: admin.lapangan.approve
+     */
+    public function approve($id)
+    {
+        // Menggunakan findOrFail agar error 404 jika ID tidak ada
+        // Laravel otomatis mendeteksi primaryKey 'lapangan_id' dari Model
+        $lapangan = Lapangan::findOrFail($id);
+        
+        $lapangan->status = 'aktif';
+        $lapangan->save();
+
+        return redirect()->route('admin.validasilapangan')
+            ->with('success', 'Lapangan berhasil divalidasi dan diaktifkan.');
+    }
+
+    /**
+     * Menolak Lapangan
+     * Route: admin.lapangan.reject
+     */
+    public function reject($id)
+    {
+        $lapangan = Lapangan::findOrFail($id);
+
+        $lapangan->status = 'ditolak';
+        $lapangan->save();
+
+        return redirect()->route('admin.validasilapangan')
+            ->with('success', 'Pengajuan lapangan telah ditolak.');
+    }
+
+    public function show($id)
+    {
+        // Ambil data lapangan beserta relasi user (penyedia) dan jam operasional
+        $lapangan = Lapangan::with(['user', 'jam_operasional'])->findOrFail($id);
+
+        return view('admin.show', compact('lapangan'));
+    }
 }
