@@ -60,9 +60,18 @@
                         </div>
 
                         <div>
-                            <label class="block text-sm font-semibold text-gray-700 mb-2">Harga Sewa / Jam (Rp)</label>
-                            <input type="number" name="harga_perjam" value="{{ old('harga_perjam') }}" required min="0"
-                                class="w-full px-4 py-2 border rounded-lg border-gray-300" placeholder="Contoh: 150000">
+                            <label class="block text-sm font-semibold text-gray-700 mb-2">Harga Sewa / Jam</label>
+                            
+                            <input type="text" 
+                                id="harga_display" 
+                                class="w-full px-4 py-2 border rounded-lg border-gray-300 focus:ring-green-500 focus:border-green-500" 
+                                placeholder="Contoh: Rp 150.000"
+                                required>
+
+                            <input type="hidden" 
+                                name="harga_perjam" 
+                                id="harga_actual" 
+                                value="{{ old('harga_perjam') }}">
                         </div>
 
                         <div class="col-span-2">
@@ -189,6 +198,37 @@
                     </div>
                 </div>
 
+                <div class="col-span-2 pt-2">
+                    <label class="block text-sm font-semibold text-gray-700 mb-2">Bukti Kepemilikan (PDF)</label>
+                    
+                    <div class="flex items-center justify-center w-full relative">
+                        <label for="bukti_kepemilikan" class="flex flex-col items-center justify-center w-full h-32 border-2 border-gray-300 border-dashed rounded-lg cursor-pointer bg-gray-50 hover:bg-gray-100 transition relative z-10">
+                            <div class="flex flex-col items-center justify-center pt-5 pb-6">
+                                <svg class="w-8 h-8 mb-4 text-gray-500" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 16">
+                                    <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 13h3a3 3 0 0 0 0-6h-.025A5.56 5.56 0 0 0 16 6.5 5.5 5.5 0 0 0 5.207 5.021C5.137 5.017 5.071 5 5 5a4 4 0 0 0 0 8h2.167M10 15V6m0 0L8 8m2-2 2 2"/>
+                                </svg>
+                                <p class="mb-2 text-sm text-gray-500"><span class="font-semibold">Klik untuk upload</span></p>
+                                <p class="text-xs text-gray-500">Format PDF (Maks. 2MB)</p>
+                            </div>
+                            
+                            <input id="bukti_kepemilikan" 
+                                name="bukti_kepemilikan" 
+                                type="file" 
+                                accept="application/pdf" 
+                                required 
+                                onchange="updateFileName(this)"
+                                style="opacity: 0; position: absolute; inset: 0; width: 100%; height: 100%; cursor: pointer;" />
+                        </label>
+                    </div>
+
+                    <div id="file-name-container" class="mt-3 hidden bg-green-50 border border-green-200 text-green-700 px-4 py-2 rounded-lg flex items-center gap-2">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd" d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4zm2 6a1 1 0 011-1h6a1 1 0 110 2H7a1 1 0 01-1-1zm1 3a1 1 0 100 2h6a1 1 0 100-2H7z" clip-rule="evenodd" />
+                        </svg>
+                        <span id="file-name-display" class="text-sm font-medium"></span>
+                    </div>
+                </div>
+
                 <button type="submit" class="w-full bg-green-600 text-white font-bold py-3 rounded-xl shadow hover:bg-green-700 transition">
                     💾 Simpan Semua Data
                 </button>
@@ -198,6 +238,21 @@
 </div>
 
 <script>
+    function updateFileName(input) {
+        const display = document.getElementById('file-name-display');
+        const container = document.getElementById('file-name-container');
+        
+        if (input.files && input.files.length > 0) {
+            // Ambil nama file
+            display.textContent = input.files[0].name;
+            // Tampilkan container
+            container.classList.remove('hidden');
+        } else {
+            // Sembunyikan jika batal pilih
+            container.classList.add('hidden');
+        }
+    }
+
     // --- 1. LOGIKA PREVIEW GAMBAR ---
     function previewImage(event, previewId) {
         const input = event.target;
@@ -294,6 +349,44 @@
 
         checkButtonState();
     }
+
+    // --- 4. LOGIKA FORMAT RUPIAH ---
+    const hargaDisplay = document.getElementById('harga_display');
+    const hargaActual = document.getElementById('harga_actual');
+
+    // Fungsi format Rupiah
+    const formatRupiah = (angka, prefix) => {
+        let number_string = angka.replace(/[^,\d]/g, '').toString(),
+            split = number_string.split(','),
+            sisa = split[0].length % 3,
+            rupiah = split[0].substr(0, sisa),
+            ribuan = split[0].substr(sisa).match(/\d{3}/gi);
+
+        if (ribuan) {
+            separator = sisa ? '.' : '';
+            rupiah += separator + ribuan.join('.');
+        }
+
+        rupiah = split[1] != undefined ? rupiah + ',' + split[1] : rupiah;
+        return prefix == undefined ? rupiah : (rupiah ? 'Rp ' + rupiah : '');
+    }
+
+    // Event Listener saat mengetik
+    hargaDisplay.addEventListener('keyup', function(e) {
+        // Format tampilan ke user
+        this.value = formatRupiah(this.value, 'Rp');
+        
+        // Simpan angka murni ke input hidden (hapus Rp dan titik)
+        // Ini yang akan dikirim ke database
+        hargaActual.value = this.value.replace(/[^0-9]/g, '');
+    });
+
+    // Inisialisasi nilai awal (jika ada error validasi / old value)
+    document.addEventListener("DOMContentLoaded", function() {
+        if (hargaActual.value) {
+            hargaDisplay.value = formatRupiah(hargaActual.value, 'Rp');
+        }
+    });
 
     function checkButtonState() {
         // Jika sudah mencapai max, sembunyikan tombol tambah

@@ -5,13 +5,53 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\User;
 use Illuminate\Support\Facades\Hash;
+use App\Models\Lapangan; // Pastikan model Lapangan ada
 
 class AdminController extends Controller
 {
     public function dashboard()
     {
-        $users = User::all();
-        return view('admin.dashboard', compact('users'));
+        // Menggunakan count() jauh lebih ringan daripada all() untuk statistik
+        $totalUser = User::count();
+        
+        // Asumsi kamu memiliki model Lapangan. Jika belum, buat modelnya dulu.
+        // Jika tabelnya belum ada, hapus baris ini dan set $totalLapangan = 0;
+        $totalLapangan = Lapangan::count(); 
+
+        return view('admin.dashboard', compact('totalUser', 'totalLapangan'));
+    }
+
+    // 2. Halaman Manajemen User (Sesuai link di tombol View)
+    // Route: Route::get('/admin/users', [AdminController::class, 'userManajemen'])->name('admin.usermanajemen');
+    public function userManajemen()
+    {
+        // Gunakan paginate() agar halaman tidak berat jika user sudah ribuan
+        $users = User::paginate(10); 
+        return view('admin.usermanajemen', compact('users')); // Pastikan view ini ada
+    }
+
+    public function create()
+    {
+        return view('admin.create');
+    }
+
+    public function store(Request $request)
+    {
+        $validated = $request->validate([
+            'nama' => 'required|string|max:255',
+            'email' => 'required|email|unique:users,email',
+            'role' => 'required|in:penyewa,penyedia,admin',
+            'password' => 'required|min:8', // Password wajib saat create
+        ]);
+
+        User::create([
+            'nama' => $validated['nama'],
+            'email' => $validated['email'],
+            'role' => $validated['role'],
+            'password' => Hash::make($validated['password']),
+        ]);
+
+        return redirect()->route('admin.dashboard')->with('success', 'User baru berhasil ditambahkan');
     }
 
     public function edit($id)

@@ -26,11 +26,11 @@ class Lapangan extends Model
         'qrcode_qris',
         'nama_qris',
         'nmid',
-        'aktif',
+        'bukti_kepemilikan',
+        'status',
     ];
 
     protected $casts = [
-        'aktif' => 'boolean',
         'fasilitas' => 'array',
     ];
 

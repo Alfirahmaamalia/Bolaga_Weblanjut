@@ -126,7 +126,7 @@
         <table class="w-full text-sm min-w-[900px]">
             <thead class="bg-gray-100 text-gray-600 font-medium">
                 <tr>
-                    <th class="text-left p-3">Email</th>
+                    <th class="text-left p-3">Nama</th>
                     <th class="text-left p-3">Lapangan</th>
                     
                     <th class="text-left p-3 whitespace-nowrap">Tanggal & Waktu</th>
@@ -144,7 +144,7 @@
                     <tr class="border-b hover:bg-gray-50">
                         
                         <td class="p-3">
-                            <p class="font-medium">{{ $item->penyewa->email ?? 'User Terhapus' }}</p>
+                            <p class="font-medium">{{ $item->penyewa->nama ?? 'User Terhapus' }}</p>
                         </td>
 
                         <td class="p-3">

@@ -15,18 +15,22 @@ class LapanganController extends Controller
 {
     public function dashboard(Request $r)
     {
-        $query = Lapangan::where('aktif', true);
+        // Hanya tampilkan yang statusnya 'aktif'
+        $query = Lapangan::where('status', 'aktif');
 
-        // filter (jika ada) -- contoh singkat
+        // Filter search
         if ($r->search) {
             $query->where('nama_lapangan', 'ILIKE', "%{$r->search}%");
         }
+        // Filter jenis
         if ($r->jenis) {
             $query->where('jenis_olahraga', $r->jenis);
         }
+        // Filter lokasi
         if ($r->lokasi) {
             $query->where('lokasi', 'LIKE', '%' . $r->lokasi . '%');
         }
+        // Filter harga
         if ($r->harga) {
             if ($r->harga == '<=100') {
                 $query->where('harga_perjam', '<=', 100000);
@@ -47,21 +51,16 @@ class LapanganController extends Controller
         return view('penyewa.dashboard', compact('items'));
     }
 
-    // ---
-    
     // ==========================
     // DETAIL LAPANGAN
     // ==========================
     public function detail($id)
     {
-        // UPDATE DI SINI:
-        // Gunakan 'with' untuk mengambil relasi jam_operasional
-        // Kita urutkan berdasarkan 'hari' (0 = Minggu, 1 = Senin, dst)
         $lapangan = Lapangan::with(['jam_operasional' => function($query) {
             $query->orderBy('hari', 'asc');
         }])->where('lapangan_id', $id)->firstOrFail();
 
-        // Logika JSON fasilitas (tetap sama seperti kodemu)
+        // Logika JSON fasilitas
         if (is_string($lapangan->fasilitas)) {
             $decoded = json_decode($lapangan->fasilitas, true);
             if (json_last_error() === JSON_ERROR_NONE && is_array($decoded)) {
@@ -74,28 +73,22 @@ class LapanganController extends Controller
         return view('penyewa.detail', compact('lapangan'));
     }
 
-    // ---
-
     // ==========================
     // FUNGSI PENYEDIA
     // ==========================
 
-    // --- 1. FORM CREATE ---
     public function create()
     {
         return view('penyedia.tambah_lapangan');
     }
 
-    // --- 2. FORM EDIT ---
     public function edit($id)
     {
-        // Ambil data lapangan & jadwalnya
         $lapangan = Lapangan::with('jam_operasional')
             ->where('lapangan_id', $id)
             ->where('penyedia_id', Auth::id())
             ->firstOrFail();
 
-        // Decode fasilitas agar tidak error di view
         if (is_string($lapangan->fasilitas)) {
             $decoded = json_decode($lapangan->fasilitas, true);
             $lapangan->fasilitas = (json_last_error() === JSON_ERROR_NONE && is_array($decoded)) 
@@ -105,150 +98,160 @@ class LapanganController extends Controller
         return view('penyedia.editlapangan', compact('lapangan'));
     }
 
-    // --- 3. PROSES SIMPAN (STORE) ---
+    // --- PROSES SIMPAN (STORE) ---
     public function store(Request $request)
-{
-    // 1. Validasi Input
-    $request->validate([
-        'nama_lapangan' => 'required|string|max:255',
-        'jenis_olahraga' => 'required|string',
-        'harga_perjam' => 'required|numeric|min:0',
-        'lokasi' => 'required|string',
-        'deskripsi' => 'required|string',
-        'foto' => 'required|image|mimes:jpeg,png,jpg|max:2048',
-        'fasilitas' => 'nullable|array',
-        'jadwal' => 'required|array',
-        'nama_qris' => 'required|string',
-        'nmid' => 'required|string',
-        'qrcode_qris' => 'required|image|mimes:jpeg,png,jpg|max:2048',
-    ]);
-
-    DB::beginTransaction();
-
-    try {
-        // 2. Upload Foto Lapangan (Logika Baru)
-        $fotoPath = null;
-        if ($request->hasFile('foto')) {
-            $file = $request->file('foto');
-            $ext = $file->getClientOriginalExtension();
-            $namaFileFoto = Str::uuid() . '.' . $ext;
-            
-            // Simpan fisik file ke: storage/app/public/lapangan/namaunik.jpg
-            $file->storeAs('lapangan', $namaFileFoto, 'public');
-
-            // String untuk database: storage/lapangan/namaunik.jpg
-            $fotoPath = 'storage/lapangan/' . $namaFileFoto;
-        }
-
-        // 3. Upload QRIS (Logika Baru)
-        $qrisPath = null;
-        if ($request->hasFile('qrcode_qris')) {
-            $fileQris = $request->file('qrcode_qris');
-            $extQris = $fileQris->getClientOriginalExtension();
-            $namaFileQris = Str::uuid() . '.' . $extQris;
-
-            // Simpan fisik file ke: storage/app/public/qris/namaunik.jpg
-            $fileQris->storeAs('qris', $namaFileQris, 'public');
-
-            // String untuk database: storage/qris/namaunik.jpg
-            $qrisPath = 'storage/qris/' . $namaFileQris;
-        }
-
-        // 4. Simpan Data Lapangan
-        $lapangan = Lapangan::create([
-            'penyedia_id' => Auth::id(),
-            'nama_lapangan' => $request->nama_lapangan,
-            'jenis_olahraga' => $request->jenis_olahraga,
-            'harga_perjam' => $request->harga_perjam,
-            'lokasi' => $request->lokasi,
-            'deskripsi' => $request->deskripsi,
-            
-            'foto' => $fotoPath, // Path sudah format 'storage/...'
-            'fasilitas' => $request->fasilitas,
-            'nama_qris' => $request->nama_qris,
-            'nmid' => $request->nmid,
-            'qrcode_qris' => $qrisPath, // Path sudah format 'storage/...'
-            'aktif' => true,
+    {
+        // 1. Validasi Input
+        $request->validate([
+            'nama_lapangan'     => 'required|string|max:255',
+            'jenis_olahraga'    => 'required|string',
+            'harga_perjam'      => 'required|numeric|min:0',
+            'lokasi'            => 'required|string',
+            'deskripsi'         => 'required|string',
+            'foto'              => 'required|image|mimes:jpeg,png,jpg|max:2048',
+            'fasilitas'         => 'nullable|array',
+            'jadwal'            => 'required|array',
+            'nama_qris'         => 'required|string',
+            'nmid'              => 'required|string',
+            'qrcode_qris'       => 'required|image|mimes:jpeg,png,jpg|max:2048',
+            // TAMBAHAN VALIDASI BUKTI KEPEMILIKAN
+            'bukti_kepemilikan' => 'required|file|mimes:pdf|max:2048', 
         ]);
 
-        // 5. Simpan Jam Operasional
-        foreach ($request->jadwal as $index => $jadwalData) {
-            $isLibur = isset($jadwalData['libur']);
-            $jamBuka = $jadwalData['buka'] ?? null;
-            $jamTutup = $jadwalData['tutup'] ?? null;
+        DB::beginTransaction();
 
-            JamOperasional::create([
-                'lapangan_id' => $lapangan->lapangan_id, 
-                'hari' => $index,
-                'jam_buka' => $isLibur ? null : $jamBuka,
-                'jam_tutup' => $isLibur ? null : $jamTutup,
-                'is_libur' => $isLibur,
+        // Inisialisasi variabel path agar bisa dihapus di catch jika error
+        $fotoPath = null;
+        $qrisPath = null;
+        $dokumenPath = null;
+
+        try {
+            // 2. Upload Foto Lapangan
+            if ($request->hasFile('foto')) {
+                $file = $request->file('foto');
+                $ext = $file->getClientOriginalExtension();
+                $namaFileFoto = Str::uuid() . '.' . $ext;
+                $file->storeAs('lapangan', $namaFileFoto, 'public');
+                $fotoPath = 'storage/lapangan/' . $namaFileFoto;
+            }
+
+            // 3. Upload QRIS
+            if ($request->hasFile('qrcode_qris')) {
+                $fileQris = $request->file('qrcode_qris');
+                $extQris = $fileQris->getClientOriginalExtension();
+                $namaFileQris = Str::uuid() . '.' . $extQris;
+                $fileQris->storeAs('qris', $namaFileQris, 'public');
+                $qrisPath = 'storage/qris/' . $namaFileQris;
+            }
+
+            // 4. Upload Bukti Kepemilikan (PDF)
+            if ($request->hasFile('bukti_kepemilikan')) {
+                $fileDokumen = $request->file('bukti_kepemilikan');
+                $extDokumen = $fileDokumen->getClientOriginalExtension(); // pdf
+                $namaFileDokumen = Str::uuid() . '.' . $extDokumen;
+                
+                // Simpan di folder storage/app/public/dokumen
+                $fileDokumen->storeAs('dokumen', $namaFileDokumen, 'public');
+                
+                // Path untuk database
+                $dokumenPath = 'storage/dokumen/' . $namaFileDokumen;
+            }
+
+            // 5. Simpan Data Lapangan
+            $lapangan = Lapangan::create([
+                'penyedia_id'       => Auth::id(),
+                'nama_lapangan'     => $request->nama_lapangan,
+                'jenis_olahraga'    => $request->jenis_olahraga,
+                'harga_perjam'      => $request->harga_perjam,
+                'lokasi'            => $request->lokasi,
+                'deskripsi'         => $request->deskripsi,
+                
+                'foto'              => $fotoPath,
+                'fasilitas'         => $request->fasilitas,
+                'nama_qris'         => $request->nama_qris,
+                'nmid'              => $request->nmid,
+                'qrcode_qris'       => $qrisPath,
+                'bukti_kepemilikan' => $dokumenPath, // Simpan Path PDF
+                
+                'status'            => 'menunggu validasi',
             ]);
+
+            // 6. Simpan Jam Operasional
+            foreach ($request->jadwal as $index => $jadwalData) {
+                $isLibur = isset($jadwalData['libur']);
+                $jamBuka = $jadwalData['buka'] ?? null;
+                $jamTutup = $jadwalData['tutup'] ?? null;
+
+                JamOperasional::create([
+                    'lapangan_id' => $lapangan->lapangan_id, 
+                    'hari'        => $index,
+                    'jam_buka'    => $isLibur ? null : $jamBuka,
+                    'jam_tutup'   => $isLibur ? null : $jamTutup,
+                    'is_libur'    => $isLibur,
+                ]);
+            }
+
+            DB::commit();
+
+            return redirect()->route('penyedia.kelolalapangan')->with('success', 'Lapangan berhasil ditambahkan dan menunggu validasi admin!');
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+
+            // Hapus file fisik jika gagal insert DB
+            if ($fotoPath) {
+                Storage::disk('public')->delete(str_replace('storage/', '', $fotoPath));
+            }
+            if ($qrisPath) {
+                Storage::disk('public')->delete(str_replace('storage/', '', $qrisPath));
+            }
+            if ($dokumenPath) {
+                Storage::disk('public')->delete(str_replace('storage/', '', $dokumenPath));
+            }
+
+            return back()->withInput()->withErrors(['msg' => 'Gagal menyimpan data: ' . $e->getMessage()]);
         }
-
-        DB::commit();
-
-        return redirect()->route('penyedia.kelolalapangan')->with('success', 'Lapangan berhasil ditambahkan!');
-
-    } catch (\Exception $e) {
-        DB::rollBack();
-
-        // Hapus file jika gagal simpan DB
-        // Karena path di variabel sekarang ada prefix 'storage/', kita harus hapus dulu prefixnya
-        // agar Storage::disk('public')->delete() bisa menemukannya.
-        
-        if ($fotoPath) {
-            $realPathFoto = str_replace('storage/', '', $fotoPath);
-            Storage::disk('public')->delete($realPathFoto);
-        }
-
-        if ($qrisPath) {
-            $realPathQris = str_replace('storage/', '', $qrisPath);
-            Storage::disk('public')->delete($realPathQris);
-        }
-
-        return back()->withInput()->withErrors(['msg' => 'Gagal menyimpan data: ' . $e->getMessage()]);
     }
-}
 
-    // --- 4. PROSES UPDATE (UPDATE) ---
+    // --- PROSES UPDATE (UPDATE) ---
     public function update(Request $request, $id)
     {
         $lapangan = Lapangan::where('lapangan_id', $id)->where('penyedia_id', Auth::id())->firstOrFail();
 
         $request->validate([
-            'nama_lapangan'  => 'required|string|max:255',
-            'jenis_olahraga' => 'required|string',
-            'harga_perjam'   => 'required|numeric|min:0',
-            'lokasi'         => 'required|string',
-            'deskripsi'      => 'required|string',
-            'fasilitas'      => 'nullable|array',
-            'foto'           => 'nullable|image|max:2048',       // Nullable untuk update
-            'qrcode_qris'    => 'nullable|image|max:2048',       // Nullable untuk update
-            'nama_qris'      => 'required|string|max:255',
-            'nmid'           => 'required|string|max:20',
-            'jadwal'         => 'required|array',
+            'nama_lapangan'     => 'required|string|max:255',
+            'jenis_olahraga'    => 'required|string',
+            'harga_perjam'      => 'required|numeric|min:0',
+            'lokasi'            => 'required|string',
+            'deskripsi'         => 'required|string',
+            'fasilitas'         => 'nullable|array',
+            'foto'              => 'nullable|image|max:2048',
+            'qrcode_qris'       => 'nullable|image|max:2048',
+            'nama_qris'         => 'required|string|max:255',
+            'nmid'              => 'required|string|max:20',
+            'jadwal'            => 'required|array',
+            // Validasi Update PDF (Nullable karena tidak wajib ganti)
+            'bukti_kepemilikan' => 'nullable|file|mimes:pdf|max:2048',
         ]);
 
         try {
             DB::beginTransaction();
 
-            // Logic Foto (Hapus lama jika ada baru)
+            // Logic Update Foto
             if ($request->hasFile('foto')) {
-                if ($lapangan->foto && Storage::disk('public')->exists($lapangan->foto)) {
-                    Storage::disk('public')->delete($lapangan->foto); // Hapus file lama
+                if ($lapangan->foto && Storage::disk('public')->exists(str_replace('storage/', '', $lapangan->foto))) {
+                    Storage::disk('public')->delete(str_replace('storage/', '', $lapangan->foto));
                 }
-                // Simpan baru (gunakan storeAs agar nama file bersih)
                 $file = $request->file('foto');
                 $filename = 'lapangan_' . time() . '.' . $file->getClientOriginalExtension();
                 $file->storeAs('images', $filename, 'public'); 
                 $lapangan->foto = 'storage/images/' . $filename;
             }
 
-            // Logic QRIS (Hapus lama jika ada baru)
+            // Logic Update QRIS
             if ($request->hasFile('qrcode_qris')) {
-                if ($lapangan->qrcode_qris && Storage::disk('public')->exists($lapangan->qrcode_qris)) {
-                    Storage::disk('public')->delete($lapangan->qrcode_qris);
+                if ($lapangan->qrcode_qris && Storage::disk('public')->exists(str_replace('storage/', '', $lapangan->qrcode_qris))) {
+                    Storage::disk('public')->delete(str_replace('storage/', '', $lapangan->qrcode_qris));
                 }
                 $file = $request->file('qrcode_qris');
                 $filename = 'qris_' . time() . '.' . $file->getClientOriginalExtension();
@@ -256,22 +259,51 @@ class LapanganController extends Controller
                 $lapangan->qrcode_qris = 'storage/images/' . $filename;
             }
 
-            // Update Data Utama
+            // Logic Update Bukti Kepemilikan (PDF)
+            if ($request->hasFile('bukti_kepemilikan')) {
+                // Hapus file lama jika ada
+                if ($lapangan->bukti_kepemilikan && Storage::disk('public')->exists(str_replace('storage/', '', $lapangan->bukti_kepemilikan))) {
+                    Storage::disk('public')->delete(str_replace('storage/', '', $lapangan->bukti_kepemilikan));
+                }
+                
+                // Upload file baru
+                $fileDokumen = $request->file('bukti_kepemilikan');
+                $namaFileDokumen = 'dokumen_' . time() . '.' . $fileDokumen->getClientOriginalExtension();
+                $fileDokumen->storeAs('dokumen', $namaFileDokumen, 'public');
+                
+                // Update path di model instance (belum di save ke DB di sini, nanti di method update)
+                $lapangan->bukti_kepemilikan = 'storage/dokumen/' . $namaFileDokumen;
+            }
+
+            // Logika Status
+            $statusToSave = $lapangan->status;
+            if ($lapangan->status !== 'menunggu validasi') {
+                $statusToSave = $request->has('status') ? 'aktif' : 'non aktif';
+            }
+
             $fasilitasClean = array_filter($request->fasilitas ?? [], fn($v) => !is_null($v) && $v !== '');
             
             $lapangan->update([
-                'nama_lapangan'  => $request->nama_lapangan,
-                'jenis_olahraga' => $request->jenis_olahraga,
-                'harga_perjam'   => $request->harga_perjam,
-                'lokasi'         => $request->lokasi,
-                'deskripsi'      => $request->deskripsi,
-                'fasilitas'      => json_encode(array_values($fasilitasClean)),
-                'nama_qris'      => $request->nama_qris,
-                'nmid'           => $request->nmid,
-                'aktif'          => $request->has('aktif'), // Handle checkbox
+                'nama_lapangan'     => $request->nama_lapangan,
+                'jenis_olahraga'    => $request->jenis_olahraga,
+                'harga_perjam'      => $request->harga_perjam,
+                'lokasi'            => $request->lokasi,
+                'deskripsi'         => $request->deskripsi,
+                'fasilitas'         => json_encode(array_values($fasilitasClean)),
+                'nama_qris'         => $request->nama_qris,
+                'nmid'              => $request->nmid,
+                'status'            => $statusToSave,
+                // Kolom foto, qrcode_qris, dan bukti_kepemilikan sudah diupdate di instance $lapangan di atas
+                // Tapi perlu di-pass ke array update ini atau biarkan $lapangan->save().
+                // Karena kita pakai mass update, amannya kita masukkan lagi variabelnya jika berubah, 
+                // tapi karena instance $lapangan sudah di-set property-nya, kita gunakan save() saja untuk properti file, 
+                // ATAU masukkan ke array update secara eksplisit:
+                'foto'              => $lapangan->foto, 
+                'qrcode_qris'       => $lapangan->qrcode_qris,
+                'bukti_kepemilikan' => $lapangan->bukti_kepemilikan,
             ]);
 
-            // Update Jadwal (Hapus Lama -> Buat Baru)
+            // Update Jadwal
             JamOperasional::where('lapangan_id', $lapangan->lapangan_id)->delete();
 
             foreach ($request->jadwal as $hari => $data) {
@@ -296,24 +328,25 @@ class LapanganController extends Controller
 
     public function destroy($id)
     {
-        // 1. Cari data
         $lap = Lapangan::where('lapangan_id', $id)
             ->where('penyedia_id', Auth::id())
             ->firstOrFail();
 
-        // 2. Hapus File Foto (Jika ada)
+        // 1. Hapus Foto
         if ($lap->foto && Storage::disk('public')->exists(str_replace('storage/', '', $lap->foto))) {
             Storage::disk('public')->delete(str_replace('storage/', '', $lap->foto));
         }
 
-        // 3. Hapus File QRIS (Jika ada) - Tambahan agar bersih
+        // 2. Hapus QRIS
         if ($lap->qrcode_qris && Storage::disk('public')->exists(str_replace('storage/', '', $lap->qrcode_qris))) {
             Storage::disk('public')->delete(str_replace('storage/', '', $lap->qrcode_qris));
         }
 
-        // 4. Hapus Data dari Database (Permanen)
-        // Karena kita sudah set 'onDelete cascade' di migration jam_operasional,
-        // maka jadwal terkait otomatis ikut terhapus di database.
+        // 3. Hapus Bukti Kepemilikan (PDF)
+        if ($lap->bukti_kepemilikan && Storage::disk('public')->exists(str_replace('storage/', '', $lap->bukti_kepemilikan))) {
+            Storage::disk('public')->delete(str_replace('storage/', '', $lap->bukti_kepemilikan));
+        }
+
         $lap->delete();
 
         return redirect()->route('penyedia.kelolalapangan')
@@ -327,14 +360,11 @@ class LapanganController extends Controller
             'tanggal' => 'required|date',
         ]);
 
-        // 1. Cari tahu hari apa (0=Minggu, 1=Senin, dst)
         $hariKe = \Carbon\Carbon::parse($request->tanggal)->dayOfWeek;
 
-        // 2. Ambil jadwal dari database
         $lapangan = Lapangan::find($request->lapangan_id);
         $jadwal = $lapangan->jam_operasional()->where('hari', $hariKe)->first();
 
-        // 3. Cek Libur
         if (!$jadwal || $jadwal->is_libur) {
             return response()->json([
                 'status' => 'libur',
@@ -342,7 +372,6 @@ class LapanganController extends Controller
             ]);
         }
 
-        // 4. Jika Buka, kirim jam operasionalnya
         return response()->json([
             'status' => 'buka',
             'jam_buka' => \Carbon\Carbon::parse($jadwal->jam_buka)->format('H:i'),
@@ -350,16 +379,10 @@ class LapanganController extends Controller
         ]);
     }
 
-    // ---
-
-    // =====================================================
-    // FITUR BARU — CEK KETERSEDIAAN SLOT BOOKING
-    // =====================================================
     public function cekSlot(Request $r)
     {
-        // echo "<script>alert('cek slot controller terpanggil');</script>";
         if (!$r->tanggal || !$r->jam_mulai) {
-            return response()->json(['available' => true]); // belum memilih lengkap
+            return response()->json(['available' => true]); 
         }
 
         $jamMulai = $r->jam_mulai;

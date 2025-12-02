@@ -24,11 +24,13 @@ class AuthController extends Controller
     public function register(Request $request)
     {
         $request->validate([
+            'nama' => 'required|string|max:255',
             'email' => 'required|email|unique:users,email',
             'password' => 'required|min:8|confirmed',
             'role' => 'required|in:penyewa,penyedia',
             'terms' => 'required|accepted',
         ], [
+            'nama.required' => 'Nama wajib diisi',
             'email.required' => 'Email wajib diisi',
             'email.email' => 'Format email tidak valid',
             'email.unique' => 'Email sudah terdaftar',
@@ -42,7 +44,7 @@ class AuthController extends Controller
         ]);
 
         $user = User::create([
-            'nama' => explode('@', $request->email)[0], // Default name from email
+            'nama' => $request->nama,
             'email' => $request->email,
             'password' => Hash::make($request->password),
             'role' => $request->role,

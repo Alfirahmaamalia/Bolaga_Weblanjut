@@ -78,12 +78,35 @@
                         </div>
 
                         <div class="col-span-2">
-                            <label class="flex items-center space-x-2 cursor-pointer">
-                                <input type="checkbox" name="aktif" value="1" 
-                                    class="w-5 h-5 text-green-600 rounded focus:ring-green-500"
-                                    {{ old('aktif', $lapangan->aktif) ? 'checked' : '' }}>
-                                <span class="text-sm font-semibold text-gray-700">Status Aktif (Tampilkan lapangan ini)</span>
-                            </label>
+                            <label class="block text-sm font-semibold text-gray-700 mb-2">Status Lapangan</label>
+
+                            @if($lapangan->status === 'menunggu validasi')
+                                <div class="flex items-center gap-3 p-4 bg-yellow-50 border-l-4 border-yellow-400 rounded-r-lg shadow-sm">
+                                    <svg class="w-6 h-6 text-yellow-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
+                                    </svg>
+                                    <div>
+                                        <p class="text-sm font-bold text-yellow-800">Menunggu Validasi Admin</p>
+                                        <p class="text-xs text-yellow-700 mt-1">
+                                            Lapangan ini sedang ditinjau. Anda tidak dapat mengubah status aktif sebelum disetujui.
+                                        </p>
+                                    </div>
+                                </div>
+                                <input type="checkbox" disabled class="hidden">
+                            @else
+                                <div class="flex items-center">
+                                    <label class="relative inline-flex items-center cursor-pointer">
+                                        <input type="checkbox" name="status" value="1" class="sr-only peer" 
+                                            {{ $lapangan->status === 'aktif' ? 'checked' : '' }}>
+                                        
+                                        <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-green-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-green-600"></div>
+                                        
+                                        <span class="ml-3 text-sm font-medium text-gray-700">
+                                            {{ $lapangan->status === 'aktif' ? 'Aktif (Lapangan Ditampilkan)' : 'Non-Aktif (Lapangan Disembunyikan)' }}
+                                        </span>
+                                    </label>
+                                </div>
+                            @endif
                         </div>
                     </div>
                 </div>
@@ -203,6 +226,43 @@
                                 <input type="file" name="qrcode_qris" accept="image/*" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer" onchange="previewImage(event, 'qrisPreview')">
                                 <p class="text-xs text-green-600 mb-2">+ Ganti QR (Opsional)</p>
                                 <img id="qrisPreview" src="{{ asset($lapangan->qrcode_qris) }}" class="w-32 h-32 object-contain mx-auto mt-2 border rounded">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-white p-6 rounded-xl shadow border border-gray-100">
+                    <h3 class="text-lg font-bold text-gray-800 mb-4">Data Kepemilikan</h3>
+                    <div class="space-y-4">
+                        <div>
+                            <label class="block text-sm font-semibold mb-1">Bukti Kepemilikan (PDF)</label>
+                            <div class="flex flex-col md:flex-row gap-4 items-start md:items-center">
+                                <div class="flex-1 w-full">
+                                    <input type="file" name="bukti_kepemilikan" accept="application/pdf"
+                                        class="block w-full text-sm text-gray-500
+                                        file:mr-4 file:py-2 file:px-4
+                                        file:rounded-full file:border-0
+                                        file:text-sm file:font-semibold
+                                        file:bg-green-50 file:text-green-700
+                                        hover:file:bg-green-100 cursor-pointer border rounded-lg">
+                                    <p class="text-xs text-gray-500 mt-1">Upload file baru hanya jika ingin mengganti (PDF, Max 2MB).</p>
+                                </div>
+
+                                @if($lapangan->bukti_kepemilikan)
+                                    <div class="flex items-center gap-2 bg-gray-50 px-4 py-2 rounded-lg border">
+                                        <svg class="w-6 h-6 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 2H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path>
+                                        </svg>
+                                        <div class="flex flex-col">
+                                            <span class="text-xs text-gray-500">File Saat Ini:</span>
+                                            <a href="{{ asset($lapangan->bukti_kepemilikan) }}" target="_blank" class="text-sm font-bold text-blue-600 hover:underline">
+                                                Lihat PDF
+                                            </a>
+                                        </div>
+                                    </div>
+                                @else
+                                    <span class="text-sm text-red-500 italic">Belum ada dokumen diupload.</span>
+                                @endif
                             </div>
                         </div>
                     </div>

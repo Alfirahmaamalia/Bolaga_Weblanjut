@@ -130,7 +130,14 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
 
     // Dashboard Admin
     Route::get('/dashboard', [AdminController::class, 'dashboard'])->name('dashboard');
+    
+    // User Manajemen
+    Route::get('/user', [AdminController::class, 'userManajemen'])->name('usermanajemen');
 
+    // Create User
+    Route::get('/user/create', [AdminController::class, 'create'])->name('create');
+    Route::post('/user', [AdminController::class, 'store'])->name('store');
+    
     // Edit User
     Route::get('/user/{id}/edit', [AdminController::class, 'edit'])->name('edit');
     Route::put('/user/{id}', [AdminController::class, 'update'])->name('update');

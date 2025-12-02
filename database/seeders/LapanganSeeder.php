@@ -26,7 +26,8 @@ class LapanganSeeder extends Seeder
             'qrcode_qris' => 'images/logoPembayaran/kodeqris.png',
             'nama_qris' => 'Stadion Gelora Bung Karno Official',
             'nmid' => 'ID102938475619283',
-            'aktif' => true,
+            'bukti_kepemilikan' => 'images/buktiKepemilikan.pdf',
+            'status' => 'aktif',
         ]);
         
         // 2. Badminton Hall Prima
@@ -42,7 +43,8 @@ class LapanganSeeder extends Seeder
             'qrcode_qris' => 'images/logoPembayaran/kodeqris.png',
             'nama_qris' => 'Prima Badminton Hall',
             'nmid' => 'ID293847561029384',
-            'aktif' => true,
+            'bukti_kepemilikan' => 'images/buktiKepemilikan.pdf',
+            'status' => 'aktif',
         ]);
         
         // 3. Basket Court Galaxy
@@ -58,7 +60,8 @@ class LapanganSeeder extends Seeder
             'qrcode_qris' => 'images/logoPembayaran/kodeqris.png',
             'nama_qris' => 'Galaxy Basket Surabaya',
             'nmid' => 'ID384756102938475',
-            'aktif' => true,
+            'bukti_kepemilikan' => 'images/buktiKepemilikan.pdf',
+            'status' => 'aktif',
         ]);
         
         // 4. Voli Arena Mandiri
@@ -74,7 +77,8 @@ class LapanganSeeder extends Seeder
             'qrcode_qris' => 'images/logoPembayaran/kodeqris.png',
             'nama_qris' => 'Voli Mandiri Yogyakarta',
             'nmid' => 'ID475610293847561',
-            'aktif' => true,
+            'bukti_kepemilikan' => 'images/buktiKepemilikan.pdf',
+            'status' => 'aktif',
         ]);
 
         // 5. Arena Futsal Nusantara
@@ -90,7 +94,8 @@ class LapanganSeeder extends Seeder
             'qrcode_qris' => 'images/logoPembayaran/kodeqris.png',
             'nama_qris' => 'Nusantara Futsal Semarang',
             'nmid' => 'ID561029384756102',
-            'aktif' => true,
+            'bukti_kepemilikan' => 'images/buktiKepemilikan.pdf',
+            'status' => 'aktif',
         ]);
 
         // 6. Tennis Court Harmoni
@@ -106,7 +111,8 @@ class LapanganSeeder extends Seeder
             'qrcode_qris' => 'images/logoPembayaran/kodeqris.png',
             'nama_qris' => 'Harmoni Tennis Bogor',
             'nmid' => 'ID610293847561029',
-            'aktif' => true,
+            'bukti_kepemilikan' => 'images/buktiKepemilikan.pdf',
+            'status' => 'aktif',
         ]);
 
         // 7. Futsal Harmoni
@@ -122,7 +128,8 @@ class LapanganSeeder extends Seeder
             'qrcode_qris' => 'images/logoPembayaran/kodeqris.png',
             'nama_qris' => 'Harmoni Futsal Kalimantan',
             'nmid' => 'ID702938475610293',
-            'aktif' => true,
+            'bukti_kepemilikan' => 'images/buktiKepemilikan.pdf',
+            'status' => 'aktif',
         ]);
 
         // 8. Basketball Nugrah
@@ -138,7 +145,8 @@ class LapanganSeeder extends Seeder
             'qrcode_qris' => 'images/logoPembayaran/kodeqris.png',
             'nama_qris' => 'Nugrah Basketball Lampung',
             'nmid' => 'ID829384756102938',
-            'aktif' => true,
+            'bukti_kepemilikan' => 'images/buktiKepemilikan.pdf',
+            'status' => 'aktif',
         ]);
     }
 }

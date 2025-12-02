@@ -83,6 +83,20 @@
                             </div>
                         </div>
 
+                        <!-- Nama -->
+                        <div>
+                            <label for="nama" class="block text-sm font-medium text-gray-700 mb-2">Nama</label>
+                            <input 
+                                type="text" 
+                                id="nama" 
+                                name="nama" 
+                                value="{{ old('nama') }}"
+                                placeholder="Masukkan nama lengkap" 
+                                class="w-full px-4 py-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none transition"
+                                required
+                            >
+                        </div>
+
                         <!-- Email -->
                         <div>
                             <label for="email" class="block text-sm font-medium text-gray-700 mb-2">Email</label>
