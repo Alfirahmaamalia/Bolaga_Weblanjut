@@ -1,4 +1,4 @@
-@extends('layouts.app')
+@extends('layouts.navbarPenyedia')
 
 @section('title', 'Tambah Lapangan Baru')
 
@@ -60,9 +60,18 @@
                         </div>
 
                         <div>
-                            <label class="block text-sm font-semibold text-gray-700 mb-2">Harga Sewa / Jam (Rp)</label>
-                            <input type="number" name="harga_perjam" value="{{ old('harga_perjam') }}" required min="0"
-                                class="w-full px-4 py-2 border rounded-lg border-gray-300" placeholder="Contoh: 150000">
+                            <label class="block text-sm font-semibold text-gray-700 mb-2">Harga Sewa / Jam</label>
+                            
+                            <input type="text" 
+                                id="harga_display" 
+                                class="w-full px-4 py-2 border rounded-lg border-gray-300 focus:ring-green-500 focus:border-green-500" 
+                                placeholder="Contoh: Rp 150.000"
+                                required>
+
+                            <input type="hidden" 
+                                name="harga_perjam" 
+                                id="harga_actual" 
+                                value="{{ old('harga_perjam') }}">
                         </div>
 
                         <div class="col-span-2">
@@ -189,6 +198,59 @@
                     </div>
                 </div>
 
+                <div class="bg-white p-6 rounded-xl shadow border border-gray-100">
+                    <h3 class="text-lg font-bold text-gray-800 mb-4">Bukti Kepemilikan (PDF)</h3>
+                    
+                    <div class="relative w-full">
+                        
+                        <input id="bukti_kepemilikan" 
+                            name="bukti_kepemilikan" 
+                            type="file" 
+                            accept="application/pdf" 
+                            class="hidden" 
+                            required 
+                            onchange="handlePdfUpload(this)">
+
+                        <div id="pdf-placeholder" 
+                            onclick="document.getElementById('bukti_kepemilikan').click()"
+                            class="border-2 border-dashed border-gray-300 rounded-lg p-6 flex flex-col items-center justify-center text-center hover:bg-gray-50 cursor-pointer transition h-48">
+                            
+                            <div class="p-4 bg-green-50 rounded-full mb-3">
+                                <svg class="w-8 h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                                </svg>
+                            </div>
+                            <p class="text-sm font-semibold text-gray-700">Klik untuk upload Bukti Kepemilikan</p>
+                            <p class="text-xs text-gray-500 mt-1">Format PDF (Maks. 2MB)</p>
+                        </div>
+
+                        <div id="pdf-preview-container" class="hidden border-2 border-green-500 border-dashed rounded-lg p-6 flex-col items-center justify-center text-center bg-green-50 h-48 relative">
+                            
+                            <svg class="w-12 h-12 text-red-500 mb-2" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4z" clip-rule="evenodd"/>
+                            </svg>
+
+                            <a id="pdf-preview-link" href="#" target="_blank" class="text-lg font-bold text-blue-700 hover:text-blue-900 hover:underline mb-1 truncate max-w-xs z-10 relative">
+                                nama_file.pdf
+                            </a>
+                            
+                            <p class="text-xs text-gray-500 mb-4">(Klik nama file untuk melihat isi)</p>
+
+                            <div class="flex gap-2 z-10 relative">
+                                <button type="button" onclick="document.getElementById('bukti_kepemilikan').click()" class="px-3 py-1 bg-white border border-gray-300 rounded text-sm text-gray-700 hover:bg-gray-100 shadow-sm">
+                                    Ganti File
+                                </button>
+                                <button type="button" onclick="resetPdfUpload()" class="px-3 py-1 bg-red-100 text-red-600 rounded text-sm hover:bg-red-200 shadow-sm">
+                                    Hapus
+                                </button>
+                            </div>
+
+                            <div class="absolute inset-0 opacity-10 bg-green-200 rounded-lg pointer-events-none"></div>
+                        </div>
+
+                    </div>
+                </div>
+
                 <button type="submit" class="w-full bg-green-600 text-white font-bold py-3 rounded-xl shadow hover:bg-green-700 transition">
                     💾 Simpan Semua Data
                 </button>
@@ -198,6 +260,21 @@
 </div>
 
 <script>
+    function updateFileName(input) {
+        const display = document.getElementById('file-name-display');
+        const container = document.getElementById('file-name-container');
+        
+        if (input.files && input.files.length > 0) {
+            // Ambil nama file
+            display.textContent = input.files[0].name;
+            // Tampilkan container
+            container.classList.remove('hidden');
+        } else {
+            // Sembunyikan jika batal pilih
+            container.classList.add('hidden');
+        }
+    }
+
     // --- 1. LOGIKA PREVIEW GAMBAR ---
     function previewImage(event, previewId) {
         const input = event.target;
@@ -210,6 +287,51 @@
             }
             reader.readAsDataURL(input.files[0]);
         }
+    }
+
+    function handlePdfUpload(input) {
+        const placeholder = document.getElementById('pdf-placeholder');
+        const previewContainer = document.getElementById('pdf-preview-container');
+        const previewLink = document.getElementById('pdf-preview-link');
+
+        if (input.files && input.files[0]) {
+            const file = input.files[0];
+
+            // Validasi tipe file harus PDF
+            if (file.type !== 'application/pdf') {
+                alert('Mohon upload file dengan format PDF.');
+                input.value = ''; // Reset input
+                return;
+            }
+
+            // 1. Buat Object URL untuk preview tanpa upload
+            const fileURL = URL.createObjectURL(file);
+
+            // 2. Set href link ke URL tersebut
+            previewLink.href = fileURL;
+            
+            // 3. Set teks nama file
+            previewLink.textContent = file.name;
+
+            // 4. Ubah tampilan UI (Sembunyikan placeholder, Tampilkan preview)
+            placeholder.classList.add('hidden');
+            previewContainer.classList.remove('hidden');
+            previewContainer.classList.add('flex');
+        }
+    }
+
+    function resetPdfUpload() {
+        const input = document.getElementById('bukti_kepemilikan');
+        const placeholder = document.getElementById('pdf-placeholder');
+        const previewContainer = document.getElementById('pdf-preview-container');
+
+        // Reset value input
+        input.value = '';
+
+        // Kembalikan tampilan ke awal
+        placeholder.classList.remove('hidden');
+        previewContainer.classList.add('hidden');
+        previewContainer.classList.remove('flex');
     }
 
     // --- 2. LOGIKA JAM OPERASIONAL (LIBUR) ---
@@ -294,6 +416,44 @@
 
         checkButtonState();
     }
+
+    // --- 4. LOGIKA FORMAT RUPIAH ---
+    const hargaDisplay = document.getElementById('harga_display');
+    const hargaActual = document.getElementById('harga_actual');
+
+    // Fungsi format Rupiah
+    const formatRupiah = (angka, prefix) => {
+        let number_string = angka.replace(/[^,\d]/g, '').toString(),
+            split = number_string.split(','),
+            sisa = split[0].length % 3,
+            rupiah = split[0].substr(0, sisa),
+            ribuan = split[0].substr(sisa).match(/\d{3}/gi);
+
+        if (ribuan) {
+            separator = sisa ? '.' : '';
+            rupiah += separator + ribuan.join('.');
+        }
+
+        rupiah = split[1] != undefined ? rupiah + ',' + split[1] : rupiah;
+        return prefix == undefined ? rupiah : (rupiah ? 'Rp ' + rupiah : '');
+    }
+
+    // Event Listener saat mengetik
+    hargaDisplay.addEventListener('keyup', function(e) {
+        // Format tampilan ke user
+        this.value = formatRupiah(this.value, 'Rp');
+        
+        // Simpan angka murni ke input hidden (hapus Rp dan titik)
+        // Ini yang akan dikirim ke database
+        hargaActual.value = this.value.replace(/[^0-9]/g, '');
+    });
+
+    // Inisialisasi nilai awal (jika ada error validasi / old value)
+    document.addEventListener("DOMContentLoaded", function() {
+        if (hargaActual.value) {
+            hargaDisplay.value = formatRupiah(hargaActual.value, 'Rp');
+        }
+    });
 
     function checkButtonState() {
         // Jika sudah mencapai max, sembunyikan tombol tambah

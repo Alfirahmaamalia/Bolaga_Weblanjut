@@ -90,10 +90,6 @@ Route::middleware(['auth', 'role:penyedia'])->prefix('penyedia')->name('penyedia
     Route::get('/dashboard', [PenyediaController::class, 'dashboard'])
         ->name('dashboard');
 
-    // Manajemen Booking
-    Route::get('/manajemen-booking', [PenyediaController::class, 'manajemenBooking'])
-        ->name('manajemenbooking');
-
     // Form tambah lapangan
     Route::get('/lapangan/tambah', [LapanganController::class, 'create'])
         ->name('lapangan.create');
@@ -114,6 +110,17 @@ Route::middleware(['auth', 'role:penyedia'])->prefix('penyedia')->name('penyedia
 
     Route::delete('/lapangan/{lapangan}', [LapanganController::class, 'destroy'])
         ->name('lapangan.destroy');
+
+
+    // Manajemen Booking
+    Route::get('/manajemen-booking', [PenyediaController::class, 'manajemenBooking'])
+        ->name('manajemenbooking');
+
+    Route::post('/manajemen-booking/konfirmasi/{booking}', [PenyediaController::class, 'konfirmasiBooking'])
+        ->name('manajemenbooking.konfirmasi');
+
+    Route::post('/manajemen-booking/batalkan/{booking}', [PenyediaController::class, 'batalkanBooking'])
+        ->name('manajemenbooking.batalkan');
 });
 
 // -------------------------------------------------
@@ -123,7 +130,14 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
 
     // Dashboard Admin
     Route::get('/dashboard', [AdminController::class, 'dashboard'])->name('dashboard');
+    
+    // User Manajemen
+    Route::get('/user', [AdminController::class, 'userManajemen'])->name('usermanajemen');
 
+    // Create User
+    Route::get('/user/create', [AdminController::class, 'create'])->name('create');
+    Route::post('/user', [AdminController::class, 'store'])->name('store');
+    
     // Edit User
     Route::get('/user/{id}/edit', [AdminController::class, 'edit'])->name('edit');
     Route::put('/user/{id}', [AdminController::class, 'update'])->name('update');
@@ -132,4 +146,10 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
     Route::get('/user/{id}/delete', [AdminController::class, 'delete'])->name('delete');
     Route::delete('/user/{id}', [AdminController::class, 'destroy'])->name('destroy');
 
+    Route::get('/lapangan', [AdminController::class, 'validasiLapangan'])->name('validasilapangan');
+
+    Route::patch('/lapangan/{id}/approve', [AdminController::class, 'approve'])->name('lapangan.approve');
+    Route::patch('/lapangan/{id}/reject', [AdminController::class, 'reject'])->name('lapangan.reject');
+    Route::delete('/lapangan/{id}', [LapanganController::class, 'destroy'])->name('lapangan.destroy');
+    Route::get('/lapangan/{id}', [AdminController::class, 'show'])->name('lapangan.show');
 });

@@ -24,7 +24,8 @@ return new class extends Migration
             $table->string('qrcode_qris')->nullable();
             $table->string('nama_qris')->nullable();
             $table->string('nmid')->nullable();
-            $table->boolean('aktif')->default(true);
+            $table->string('bukti_kepemilikan')->nullable();
+            $table->string('status')->default('aktif');
             $table->timestamps();
         });
     }

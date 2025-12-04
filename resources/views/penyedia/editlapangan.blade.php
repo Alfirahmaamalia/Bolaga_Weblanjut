@@ -1,4 +1,4 @@
-@extends('layouts.app')
+@extends('layouts.navbarPenyedia')
 
 @section('title', 'Edit Lapangan')
 
@@ -78,12 +78,55 @@
                         </div>
 
                         <div class="col-span-2">
-                            <label class="flex items-center space-x-2 cursor-pointer">
-                                <input type="checkbox" name="aktif" value="1" 
-                                    class="w-5 h-5 text-green-600 rounded focus:ring-green-500"
-                                    {{ old('aktif', $lapangan->aktif) ? 'checked' : '' }}>
-                                <span class="text-sm font-semibold text-gray-700">Status Aktif (Tampilkan lapangan ini)</span>
-                            </label>
+                            <label class="block text-sm font-semibold text-gray-700 mb-2">Status Lapangan</label>
+
+                            {{-- KONDISI 1: Menunggu Validasi (Kuning) --}}
+                            @if($lapangan->status === 'menunggu validasi')
+                                <div class="flex items-center gap-3 p-4 bg-yellow-50 border-l-4 border-yellow-400 rounded-r-lg shadow-sm">
+                                    <svg class="w-6 h-6 text-yellow-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
+                                    </svg>
+                                    <div>
+                                        <p class="text-sm font-bold text-yellow-800">Menunggu Validasi Admin</p>
+                                        <p class="text-xs text-yellow-700 mt-1">
+                                            Lapangan ini sedang ditinjau. Anda tidak dapat mengubah status aktif sebelum disetujui.
+                                        </p>
+                                    </div>
+                                </div>
+                                {{-- Input dinonaktifkan --}}
+                                <input type="checkbox" disabled class="hidden">
+
+                            {{-- KONDISI 2: Ditolak (Merah) - PERUBAHAN DISINI --}}
+                            @elseif($lapangan->status === 'ditolak')
+                                <div class="flex items-center gap-3 p-4 bg-red-50 border-l-4 border-red-500 rounded-r-lg shadow-sm">
+                                    <svg class="w-6 h-6 text-red-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                    </svg>
+                                    <div>
+                                        <p class="text-sm font-bold text-red-800">Pengajuan Ditolak</p>
+                                        <p class="text-xs text-red-700 mt-1">
+                                            Lapangan ini ditolak oleh admin. Silakan perbaiki data lalu simpan. Anda tidak dapat mengubah status aktif saat ini.
+                                        </p>
+                                    </div>
+                                </div>
+                                {{-- Input dinonaktifkan --}}
+                                <input type="checkbox" disabled class="hidden">
+
+                            {{-- KONDISI 3: Aktif / Non-Aktif (Bisa Diubah) --}}
+                            @else
+                                <div class="flex items-center">
+                                    <label class="relative inline-flex items-center cursor-pointer">
+                                        <input type="checkbox" name="status" value="1" class="sr-only peer" 
+                                            {{ $lapangan->status === 'aktif' ? 'checked' : '' }}>
+                                        
+                                        <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-green-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-green-600"></div>
+                                        
+                                        <span class="ml-3 text-sm font-medium text-gray-700">
+                                            {{ $lapangan->status === 'aktif' ? 'Aktif (Lapangan Ditampilkan)' : 'Non-Aktif (Lapangan Disembunyikan)' }}
+                                        </span>
+                                    </label>
+                                </div>
+                            @endif
                         </div>
                     </div>
                 </div>
@@ -204,6 +247,65 @@
                                 <p class="text-xs text-green-600 mb-2">+ Ganti QR (Opsional)</p>
                                 <img id="qrisPreview" src="{{ asset($lapangan->qrcode_qris) }}" class="w-32 h-32 object-contain mx-auto mt-2 border rounded">
                             </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-white p-6 rounded-xl shadow border border-gray-100">
+                    <h3 class="text-lg font-bold text-gray-800 mb-4 border-b pb-2">Data Kepemilikan</h3>
+                    
+                    <label class="block text-sm font-semibold text-gray-700 mb-2">Bukti Kepemilikan (PDF)</label>
+
+                    <div class="relative w-full">
+                        
+                        <input id="bukti_kepemilikan" 
+                            name="bukti_kepemilikan" 
+                            type="file" 
+                            accept="application/pdf" 
+                            class="hidden" 
+                            onchange="handlePdfUpload(this)">
+
+                        <div id="pdf-placeholder" 
+                            onclick="document.getElementById('bukti_kepemilikan').click()"
+                            class="{{ $lapangan->bukti_kepemilikan ? 'hidden' : 'flex' }} border-2 border-dashed border-gray-300 rounded-lg p-6 flex-col items-center justify-center text-center hover:bg-gray-50 cursor-pointer transition h-48">
+                            
+                            <div class="p-4 bg-green-50 rounded-full mb-3">
+                                <svg class="w-8 h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                                </svg>
+                            </div>
+                            <p class="text-sm font-semibold text-gray-700">Klik untuk upload Bukti Kepemilikan Baru</p>
+                            <p class="text-xs text-gray-500 mt-1">Format PDF (Maks. 2MB)</p>
+                        </div>
+
+                        <div id="pdf-preview-container" 
+                            class="{{ $lapangan->bukti_kepemilikan ? 'flex' : 'hidden' }} border-2 border-green-500 border-dashed rounded-lg p-6 flex-col items-center justify-center text-center bg-green-50 h-48 relative">
+                            
+                            <svg class="w-12 h-12 text-red-500 mb-2" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4z" clip-rule="evenodd"/>
+                            </svg>
+
+                            <a id="pdf-preview-link" 
+                            href="{{ $lapangan->bukti_kepemilikan ? asset($lapangan->bukti_kepemilikan) : '#' }}" 
+                            target="_blank" 
+                            class="text-lg font-bold text-blue-700 hover:text-blue-900 hover:underline mb-1 truncate max-w-xs z-10 relative">
+                            {{ $lapangan->bukti_kepemilikan ? 'Lihat File Saat Ini' : 'nama_file.pdf' }}
+                            </a>
+                            
+                            <p class="text-xs text-gray-500 mb-4" id="pdf-status-text">
+                                {{ $lapangan->bukti_kepemilikan ? '(File tersimpan di server)' : '(Klik nama file untuk preview)' }}
+                            </p>
+
+                            <div class="flex gap-2 z-10 relative">
+                                <button type="button" onclick="document.getElementById('bukti_kepemilikan').click()" class="px-3 py-1 bg-white border border-gray-300 rounded text-sm text-gray-700 hover:bg-gray-100 shadow-sm">
+                                    Ganti File
+                                </button>
+                                <button type="button" onclick="resetPdfUpload()" class="px-3 py-1 bg-red-100 text-red-600 rounded text-sm hover:bg-red-200 shadow-sm">
+                                    Batal / Reset
+                                </button>
+                            </div>
+
+                            <div class="absolute inset-0 opacity-10 bg-green-200 rounded-lg pointer-events-none"></div>
                         </div>
                     </div>
                 </div>
@@ -333,6 +435,76 @@
 
     function checkButtonState() {
         btnAdd.style.display = (container.children.length >= MAX_FACILITIES) ? 'none' : 'flex';
+    }
+
+    // --- VARIABEL UNTUK MENYIMPAN STATUS FILE LAMA (Server Side) ---
+    // Jika ada file di database, kita simpan URL-nya di sini
+    const originalPdfUrl = "{{ $lapangan->bukti_kepemilikan ? asset($lapangan->bukti_kepemilikan) : '' }}";
+    const hasOriginalFile = "{{ $lapangan->bukti_kepemilikan ? 'true' : 'false' }}" === 'true';
+
+    function handlePdfUpload(input) {
+        const placeholder = document.getElementById('pdf-placeholder');
+        const previewContainer = document.getElementById('pdf-preview-container');
+        const previewLink = document.getElementById('pdf-preview-link');
+        const statusText = document.getElementById('pdf-status-text');
+
+        if (input.files && input.files[0]) {
+            const file = input.files[0];
+
+            if (file.type !== 'application/pdf') {
+                alert('Mohon upload file dengan format PDF.');
+                input.value = ''; 
+                return;
+            }
+
+            // 1. Buat URL Blob sementara
+            const fileURL = URL.createObjectURL(file);
+
+            // 2. Update Tampilan Preview
+            previewLink.href = fileURL;
+            previewLink.textContent = file.name; // Tampilkan nama file baru
+            statusText.textContent = "(File baru dipilih - Belum disimpan)";
+            statusText.classList.add('text-green-600', 'font-bold');
+
+            // 3. Toggle Visibility
+            placeholder.classList.add('hidden');
+            placeholder.classList.remove('flex');
+            
+            previewContainer.classList.remove('hidden');
+            previewContainer.classList.add('flex');
+        }
+    }
+
+    function resetPdfUpload() {
+        const input = document.getElementById('bukti_kepemilikan');
+        const placeholder = document.getElementById('pdf-placeholder');
+        const previewContainer = document.getElementById('pdf-preview-container');
+        const previewLink = document.getElementById('pdf-preview-link');
+        const statusText = document.getElementById('pdf-status-text');
+
+        // 1. Reset Input File
+        input.value = '';
+
+        // 2. Cek apakah ada file lama dari database?
+        if (hasOriginalFile) {
+            // JIKA ADA FILE LAMA: Kembali ke tampilan file lama
+            previewLink.href = originalPdfUrl;
+            previewLink.textContent = "Lihat File Saat Ini";
+            statusText.textContent = "(File tersimpan di server)";
+            statusText.classList.remove('text-green-600', 'font-bold');
+
+            // Pastikan container preview tetap muncul
+            previewContainer.classList.remove('hidden');
+            previewContainer.classList.add('flex');
+            placeholder.classList.add('hidden');
+        } else {
+            // JIKA TIDAK ADA FILE LAMA: Kembali ke Placeholder kosong
+            previewContainer.classList.add('hidden');
+            previewContainer.classList.remove('flex');
+            
+            placeholder.classList.remove('hidden');
+            placeholder.classList.add('flex');
+        }
     }
 </script>
 

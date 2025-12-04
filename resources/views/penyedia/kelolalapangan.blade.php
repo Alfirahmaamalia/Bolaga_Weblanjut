@@ -1,4 +1,4 @@
-@extends('layouts.app')
+@extends('layouts.navbarPenyedia')
 
 @section('title', 'Kelola Lapangan')
 
@@ -56,8 +56,20 @@
                 <!-- Gambar & Status -->
                 <div class="relative">
                     <img src="{{ asset($item->foto) }}" class="h-44 w-full object-cover" onerror="this.src='https://picsum.photos/600/400?random={{ $loop->index }}'">
-                    <span class="absolute top-2 right-2 px-2 py-1 text-xs font-bold rounded-lg shadow {{ $item->aktif ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700' }}">
-                        {{ $item->aktif ? 'Aktif / Tersedia' : 'Non-Aktif' }}
+                    @php
+                        // Menentukan warna badge berdasarkan status string
+                        $badgeClass = match($item->status) {
+                            'aktif' => 'bg-green-100 text-green-700',              // Hijau
+                            'menunggu validasi' => 'bg-yellow-100 text-yellow-700',  // Kuning
+                            'ditolak' => 'bg-red-100 text-red-700',                 // Merah (Baru)
+                            'non aktif' => 'bg-gray-200 text-gray-700',             // Abu-abu (Baru)
+                            default => 'bg-gray-100 text-gray-700',
+                        };
+                    @endphp
+
+                    <span class="absolute top-2 right-2 px-2 py-1 text-xs font-bold rounded-lg shadow {{ $badgeClass }} capitalize">
+                        {{-- Menampilkan status (misal: Menunggu Validasi) --}}
+                        {{ $item->status }}
                     </span>
                 </div>
 

@@ -86,7 +86,11 @@
 
                         <td class="p-3">
                             @if($row->bukti_pembayaran)
-                                <img src="{{ asset($row->bukti_pembayaran) }}" class="w-20 h-20 object-cover">
+                                <a href="{{ asset($row->bukti_pembayaran) }}" 
+                                target="_blank" 
+                                class="px-3 py-1 bg-blue-600 text-white rounded-lg text-sm hover:bg-green-700 transition">
+                                    Lihat Bukti
+                                </a>
                             @else
                                 -
                             @endif
