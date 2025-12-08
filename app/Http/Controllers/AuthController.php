@@ -6,6 +6,7 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\ValidationException;
 use Laravel\Socialite\Facades\Socialite;
 class AuthController extends Controller
@@ -52,6 +53,43 @@ class AuthController extends Controller
 
         return redirect()->route('login')->with('success', 'Berhasil membuat akun, silahkan login');
     }
+
+
+    public function profil()
+{
+    $user = Auth::user();
+    return view('profil.index', compact('user'));
+}
+
+public function updateProfil(Request $request)
+{
+    $request->validate([
+        'nama' => 'required|string|max:255',
+        'phone' => 'nullable|string|max:20',
+        'foto' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+    ]);
+
+    $user = Auth::user();
+    $data = [
+        'nama' => $request->nama,
+        'phone' => $request->phone,
+    ];
+
+    // Handle photo upload
+    if ($request->hasFile('foto')) {
+        // Delete old photo if exists
+        if ($user->foto && Storage::disk('public')->exists(str_replace('storage/', '', $user->foto))) {
+            Storage::disk('public')->delete(str_replace('storage/', '', $user->foto));
+        }
+        // Upload new photo
+        $fotoPath = $request->file('foto')->store('profil', 'public');
+        $data['foto'] = 'storage/' . $fotoPath;
+    }
+
+    $user->update($data);
+
+    return back()->with('success', 'Profil berhasil diperbarui!');
+}
 
     /**
      * Show login form

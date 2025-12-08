@@ -39,6 +39,11 @@ Route::middleware('guest')->group(function () {
     Route::get('/auth/google/callback', [AuthController::class, 'googleCallback'])->name('google.callback');
 });
 
+Route::middleware('auth')->group(function () {
+    Route::get('/profil', [AuthController::class, 'profil'])->name('profil');
+    Route::post('/profil/update', [AuthController::class, 'updateProfil'])->name('profil.update');
+});
+
 // -------------------------------------------------
 // LOGOUT (Harus Login)
 // -------------------------------------------------

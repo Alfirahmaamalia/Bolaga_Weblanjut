@@ -46,7 +46,7 @@
                 <!-- Profile Dropdown -->
                 <div class="relative">
                     <button id="profileBtn" class="flex items-center">
-                        <img src="{{ Auth::user()->foto ?? asset('images/default-profile.png') }}"
+                        <img src="{{ Auth::user()->foto ? asset(Auth::user()->foto) : asset('images/default-profile.png') }}"
                              onerror="this.src='https://cdn-icons-png.flaticon.com/512/847/847969.png'"
                              class="w-10 h-10 rounded-full border object-cover cursor-pointer">
                     </button>
@@ -55,7 +55,7 @@
                     <div id="profileMenu"
                          class="absolute right-0 mt-2 w-40 bg-white shadow-lg border rounded-lg hidden">
 
-                        <a href="#" class="block px-4 py-2 hover:bg-gray-100 text-black">
+                        <a href="{{ route('profil') }}" class="block px-4 py-2 hover:bg-gray-100 text-black">
                             Profil Saya
                         </a>
 
