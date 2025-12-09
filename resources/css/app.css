@@ -9,3 +9,53 @@
     --font-sans: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
         'Segoe UI Symbol', 'Noto Color Emoji';
 }
+
+/* Navbar and dropdown z-index layering */
+nav {
+    position: relative;
+    z-index: 50;
+}
+
+#profileMenu {
+    z-index: 1000;
+}
+
+#profileMenu form button {
+    position: relative;
+    z-index: 1001;
+}
+
+#mobileMenu {
+    z-index: 999;
+}
+
+#mobileMenu form button {
+    position: relative;
+    z-index: 1000;
+}
+
+/* Aesthetic dashboard helpers */
+:root{
+    --card-bg: rgba(255,255,255,0.72);
+    --card-border: rgba(15,23,42,0.06);
+}
+
+.backdrop-blur{
+    -webkit-backdrop-filter: blur(6px);
+    backdrop-filter: blur(6px);
+}
+
+.glass-card{
+    background: linear-gradient(180deg, rgba(255,255,255,0.7), rgba(255,255,255,0.6));
+    border: 1px solid var(--card-border);
+    box-shadow: 0 8px 30px rgba(2,6,23,0.06);
+}
+
+/* Small utility for badges */
+.ui-badge{
+    display:inline-flex;align-items:center;gap:0.5rem;padding:0.25rem 0.5rem;border-radius:9999px;font-weight:600;font-size:0.75rem;
+}
+
+/* Ensure smooth fonts and subtle rendering */
+body{ -webkit-font-smoothing:antialiased; -moz-osx-font-smoothing:grayscale; }
+
