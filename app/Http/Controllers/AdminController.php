@@ -6,19 +6,34 @@ use Illuminate\Http\Request;
 use App\Models\User;
 use Illuminate\Support\Facades\Hash;
 use App\Models\Lapangan; // Pastikan model Lapangan ada
+use App\Models\Booking; // Pastikan model Booking ada
 
 class AdminController extends Controller
 {
     public function dashboard()
     {
-        // Menggunakan count() jauh lebih ringan daripada all() untuk statistik
+        // 1. Total User
         $totalUser = User::count();
         
-        // Asumsi kamu memiliki model Lapangan. Jika belum, buat modelnya dulu.
-        // Jika tabelnya belum ada, hapus baris ini dan set $totalLapangan = 0;
+        // 2. Total Lapangan (Asumsi model Lapangan ada)
         $totalLapangan = Lapangan::count(); 
 
-        return view('admin.dashboard', compact('totalUser', 'totalLapangan'));
+        // 3. Booking Hari Ini
+        // Mengambil jumlah booking dimana kolom 'tanggal' sama dengan hari ini
+        $bookingsToday = Booking::whereDate('created_at', now('Asia/Jakarta'))->count();
+
+        // 4. Estimasi Pendapatan
+        // Menghitung jumlah booking dengan status 'berhasil', lalu dikali 5000
+        $successfulBookingsCount = Booking::where('status', 'berhasil')->count();
+        $estimatedRevenue = $successfulBookingsCount * 5000;
+
+        // Mengirim semua data ke view
+        return view('admin.dashboard', compact(
+            'totalUser', 
+            'totalLapangan', 
+            'bookingsToday', 
+            'estimatedRevenue'
+        ));
     }
 
     // 2. Halaman Manajemen User (Sesuai link di tombol View)

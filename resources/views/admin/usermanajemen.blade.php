@@ -101,25 +101,38 @@
                             <td class="px-6 py-4">
                                 <span class="text-sm text-slate-600">{{ $user->created_at->format('d M Y') }}</span>
                             </td>
-                            <td class="px-6 py-4">
-                                <div class="flex items-center justify-center gap-2">
-                                    <a href="{{ route('admin.edit', $user->user_id) }}" 
-                                       class="inline-flex items-center px-3 py-2 text-xs font-medium rounded-lg bg-blue-50 text-blue-700 hover:bg-blue-100 transition-colors duration-150">
-                                        <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-7-4l7-7m0 0l0 7m0-7l-7 0"></path>
+                            
+                            <td class="px-6 py-4 text-center">
+                                @if(auth()->user()->user_id == $user->user_id)
+                                    {{-- Jika user yang login sama dengan baris ini, tampilkan tanda strip --}}
+                                    <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-slate-100 text-slate-500 border border-slate-200">
+                                        <svg class="w-3 h-3 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
                                         </svg>
-                                        Edit
-                                    </a>
-                                    <a href="{{ route('admin.delete', $user->user_id) }}" 
-                                       class="inline-flex items-center px-3 py-2 text-xs font-medium rounded-lg bg-red-50 text-red-700 hover:bg-red-100 transition-colors duration-150">
-                                        <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
-                                        </svg>
-                                        Hapus
-                                    </a>
-                                </div>
+                                        Akun Anda
+                                    </span>
+                                @else
+                                    {{-- Jika bukan diri sendiri, tampilkan tombol Edit & Hapus --}}
+                                    <div class="flex items-center justify-center gap-2">
+                                        <a href="{{ route('admin.edit', $user->user_id) }}" 
+                                        class="inline-flex items-center px-3 py-2 text-xs font-medium rounded-lg bg-blue-50 text-blue-700 hover:bg-blue-100 transition-colors duration-150">
+                                            <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-7-4l7-7m0 0l0 7m0-7l-7 0"></path>
+                                            </svg>
+                                            Edit
+                                        </a>
+                                        <a href="{{ route('admin.delete', $user->user_id) }}" 
+                                        class="inline-flex items-center px-3 py-2 text-xs font-medium rounded-lg bg-red-50 text-red-700 hover:bg-red-100 transition-colors duration-150"
+                                        onclick="return confirm('Apakah Anda yakin ingin menghapus user ini?')">
+                                            <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                                            </svg>
+                                            Hapus
+                                        </a>
+                                    </div>
+                                @endif
                             </td>
-                        </tr>
+                            </tr>
                         @empty
                         <tr>
                             <td colspan="6" class="px-6 py-12 text-center">
